@@ -16,7 +16,7 @@ java -jar greenVC-0.1.jar bam2var --in data/HG01500.IBS.exome.MT.bam --out resul
 ```
 
 ### Default Command for haplochecker
-This command writes the variants and the raw pileup file in an output folder 
+This command writes from the variants generated with the naive **bam2var** to a haplogrep input file, by splitting it in major/ minor allele profiles in order to check for sample contamination 
 
 ```bash
 java -jar greenVC-0.1.jar haplochecker --in variants.txt --out haplogrepinput.hsd   --VAF 0.05 
