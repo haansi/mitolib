@@ -101,17 +101,23 @@ public class VariantBuilder {
 			String name = reader.getResourceDescription().substring(reader.getResourceDescription().lastIndexOf('\\') + 1);
 			
 			name = name.split("\\.")[0];
-			System.out.println("last " +name );
+	
 			int total = 0;
 			int tot100M = 0;
 			int readFWD = 0;
 			int readREV = 0;
-			int countA = 0;
-			int countC = 0;
-			int countG = 0;
-			int countT = 0;
-			int countD = 0;
-			int countN = 0;
+			int countAf = 0;
+			int countCf = 0;
+			int countGf = 0;
+			int countTf = 0;
+			int countDf = 0;
+			int countNf= 0;
+			int countAr = 0;
+			int countCr = 0;
+			int countGr = 0;
+			int countTr = 0;
+			int countDr = 0;
+			int countNr= 0;
 			HashMap<Integer, HashMap<String, Integer>> hm = new HashMap<>();
 			Locale.setDefault(new Locale("en", "US"));
 			NumberFormat formatter = new DecimalFormat("#0.0000"); 
@@ -127,8 +133,6 @@ public class VariantBuilder {
 					result[i][j] = 0;
 				}
 			}
-			System.out.println(reader.getFileHeader()+ " ---- ");
-			System.out.println(reader.getResourceDescription() + " "  ) ;
 			
 			try{
 				for ( SAMRecord samRecord : reader) {
@@ -154,21 +158,27 @@ public class VariantBuilder {
 							switch (read.charAt(j)) {
 							case 'A':
 								result[posBase%(size-1)][0]++;
+								countAf++;
 								break;
 							case 'C':
 								result[posBase%(size-1)][1]++;
+								countCf++;
 								break;
 							case 'G':
 								result[posBase%(size-1)][2]++;
+								countGf++;
 								break;
 							case 'T':
 								result[posBase%(size-1)][3]++;
+								countTf++;
 								break;
 							case 'N':
 								result[posBase%(size-1)][4]++;
+								countNf++;
 								break;
 							case 'D':
 								result[posBase%(size-1)][5]++;
+								countDf++;
 								break;
 							default:
 								break;
@@ -184,21 +194,27 @@ public class VariantBuilder {
 							switch (read.charAt(j)) {
 							case 'A':
 								result[posBase%(size-1)][6]++;
+								countAr++;
 								break;
 							case 'C':
 								result[posBase%(size-1)][7]++;
+								countCr++;
 								break;
 							case 'G':
 								result[posBase%(size-1)][8]++;
+								countGr++;
 								break;
 							case 'T':
 								result[posBase%(size-1)][9]++;
+								countTr++;
 								break;
 							case 'N':
 								result[posBase%(size-1)][10]++;
+								countNr++;
 								break;
 							case 'D':
 								result[posBase%(size-1)][11]++;
+								countDr++;
 								break;
 							default:
 								break;
@@ -230,9 +246,10 @@ public class VariantBuilder {
 						while (cigarElementStart < cigarElementEnd) {
 
 							if ((samRecord.getFlags() & 0x10) == 0x10) {
-							
+								countDf++;
 								result[(cigarElementEnd-cigarElementLength)%(size-1)][11]++;
 							} else {
+								countDr++;
 								result[(cigarElementStart-cigarElementLength+1)%(size-1)][5]++;
 							}
 
@@ -274,13 +291,16 @@ public class VariantBuilder {
 				e.printStackTrace();
 			}
 			
-			System.out.println("Reads " + total + "  100M " + tot100M + " REV "
-					+ readREV + " FWD " + readFWD + " A " + countA + " C "
-					+ countC + " G " + countG + " T " + countT + " N " + countN
-					+ " other " + countD);
+			
 
 			writePileup(outDirectory+File.separator+name+"_"+System.currentTimeMillis()+".pileup", size, columns, result); 
 
+			System.out.println("All Reads " + total +" A\tC\tG\tT\tN\tD\n"
+					+ "Forward\t"+countAf+"\t"+countCf+"\t"+countGf+"\t"+countTf+"\t"+countNf+"\t"+countDf+"\n"
+					+"Reverse\t"+countAr+"\t"+countCr+"\t"+countGr+"\t"+countTr+"\t"+countNr+"\t"+countDr+"\n");
+					
+				
+			
 			TreeMap<Integer, String> variants = new TreeMap<>();
 
 			for (int i = 1; i < size; i++) {
@@ -316,19 +336,16 @@ public class VariantBuilder {
 					else{
 						variants.put(pos, reference.getBaseString().charAt(pos-1) + "\t" + entry.getKey() + "\t" + entry.getValue());
 						major = entry.getKey();
-						//System.out.println(pos + "\t" + entry.getKey()  + " "  + entry.getValue());
-						System.out.print(" entry "  + entry.getValue());		
 					}
 					}
 				}
 			}
 			
-			System.out.println();
 			writeVariants(outDirectory+File.separator+name+".txt", name, formatter, het, variants);
 
 			System.out.println(prev + " - input BAM file: " +  genome);
 			System.out.println(prev + " - reference size: " +  reference.length());
-			System.out.println("\n Results saved in: " + outDirectory);
+			System.out.println(" Results saved in: " + outDirectory);
 	
 			ref.close();		
 
@@ -380,7 +397,7 @@ public class VariantBuilder {
 			}
 			else{
 				if (!Ref.equals(Max)){
-					bw.write(name + "\t" + entry.getKey() + Max+ "\t"+ entry.getKey()  +  "\t" +  Ref + "\t"+ countMajor +"\t" +Max + "\t"+  "\t" +  "\t1+\n");
+					bw.write(name + "\t" + entry.getKey() + Max+ "\t"+ entry.getKey()  +  "\t" +  Ref + "\t"+ countMajor +"\t" +Max + "\t"+  "\t" +  "\t1\n");
 					bwHsd.write(entry.getKey() + Max+"\t");
 				}
 			}
@@ -397,7 +414,7 @@ public class VariantBuilder {
 		FileOutputStream fstream = new FileOutputStream(fout);
 		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fstream));
 		bw.write("POS\tA\tC\tG\tT\tN\tDEL\ta\tc\tg\tt\tn\tdel\n");
-		System.out.println(size  + " " + result.length);
+
 		for (int i = 0; i < size; i++) {
 			bw.write((i) + "\t");
 			for (int j = 0; j < columns; j++) {

@@ -17,6 +17,7 @@ public class Tools extends Toolbox {
 		Tools tools = new Tools("java -jar greenVC.jar", args);
 		
 		tools.addTool("bam2var", BAMReader.class);
+		tools.addTool("haplocheck", HaploCheckReader.class);
 		
 		try {
 			tools.start();
