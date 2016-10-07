@@ -4,7 +4,7 @@ This is a simple Java implementation to read BAM files based on the HGSJDK API (
 
 ## Usage Examples
 
-### Default Command
+### Default Command for bam2var
 This command writes the variants and the raw pileup file in an output folder 
 
 ```bash
@@ -12,3 +12,10 @@ java -jar greenVC-0.1.jar bam2var --in data/HG01500.IBS.exome.MT.bam --out resul
 
 ```
 
+### Default Command for haplochecker
+This command writes the variants and the raw pileup file in an output folder 
+
+```bash
+java -jar greenVC-0.1.jar haplochecker --in variants.txt --out haplogrepinput.hsd   --VAF 0.05 
+
+```
