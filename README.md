@@ -1,6 +1,6 @@
 # greenvariantcaller - Convert your BAM file to Variants
 
-This is a simple Java implementation to read BAM files from small genomes like the mitochondrial genome into pileup files and performce a naive variant calling. Variant files of human mitochondrial genomes can be used for **mitochondrial haplogroup classification** with [HaploGrep2](http://haplogrep.uibk.ac.at).
+This is a simple Java implementation to read BAM files based on the HGSJDK API (https://github.com/samtools/htsjdk) from small genomes like the mitochondrial genome into pileup files and performce a naive variant calling. Variant files of human mitochondrial genomes can be used for **mitochondrial haplogroup classification** with [HaploGrep2](http://haplogrep.uibk.ac.at).
 
 ## Usage Examples
 
