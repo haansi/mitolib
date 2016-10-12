@@ -64,6 +64,7 @@ public class VariantBuilder {
 	private String outDirectory;
 	private double vaf;
 	private int qual;
+	private boolean checkRCRS;
 
 	public VariantBuilder(String genome) {
 		this.genome = genome;
@@ -79,7 +80,7 @@ public class VariantBuilder {
 		VCFHeader header = null;
 		int counter = 0;
 		String prev = "";
-	
+		checkRCRS=false;
 
 		// create final output directory
 		createFolder(outDirectory);
@@ -153,7 +154,7 @@ public class VariantBuilder {
 							for (int j = 0; j < read.length(); j++) {
 						if (quality[j] >= qualPhred) {
 							int posBase = samRecord.getReferencePositionAtReadPosition(j+1);
-							if (reference.length() ==16571) //if HG19 Yoruba
+							if (checkRCRS) //if HG19 Yoruba
 								posBase = checkRCRS(posBase);
 							switch (read.charAt(j)) {
 							case 'A':
@@ -189,7 +190,7 @@ public class VariantBuilder {
 					for (int j = 0; j < read.length(); j++) {
 						if (quality[j] >= qual) {
 							int posBase = samRecord.getReferencePositionAtReadPosition(j+1);
-							if (reference.length() ==16571) //if HG19 Yoruba
+							if (checkRCRS)  //if HG19 Yoruba //(reference.length() ==16571)
 								posBase = checkRCRS(posBase);
 							switch (read.charAt(j)) {
 							case 'A':
@@ -291,9 +292,8 @@ public class VariantBuilder {
 				e.printStackTrace();
 			}
 			
-			
-
-			writePileup(outDirectory+File.separator+name+"_"+System.currentTimeMillis()+".pileup", size, columns, result); 
+	
+			writePileup(outDirectory+File.separator+name+".pileup", size, columns, result); 
 
 			System.out.println("All Reads " + total +" A\tC\tG\tT\tN\tD\n"
 					+ "Forward\t"+countAf+"\t"+countCf+"\t"+countGf+"\t"+countTf+"\t"+countNf+"\t"+countDf+"\n"
@@ -363,7 +363,7 @@ public class VariantBuilder {
 		
 		bwHsd.write(name+"\t1-16569\t\t");
 		
-		bw.write("ID\tmtSNP\tPOS\tREFrCRS\tcountMajor\tREF\tcountMinor\tALT\tVAF\n");
+		bw.write("ID\tmtSNP\tPOS\tREFrCRS\tcountMajor\tBaseMajor\tcountMinor\tBaseMinor\tVAF\n");
 		for (Entry<Integer, String> entry : variants.entrySet()) {
 			
 			String help = entry.getValue();

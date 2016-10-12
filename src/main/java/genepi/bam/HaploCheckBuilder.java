@@ -57,8 +57,9 @@ public class HaploCheckBuilder {
 					String id = idReader.getString("ID");
 					entry.setID(id);
 					entry.setPOS(idReader.getInteger("POS"));
-					entry.setREF(idReader.getString("REF"));
-					entry.setALT(idReader.getString("ALT"));
+					entry.setREF(idReader.getString("REFrCRS"));
+					entry.setBaseMajor(idReader.getString("BaseMajor"));
+					entry.setBaseMinor(idReader.getString("BaseMinor"));
 					entry.setVAF(idReader.getDouble("VAF"));
 
 					if (hm.containsKey(id)) {
@@ -87,38 +88,42 @@ public class HaploCheckBuilder {
 				ArrayList<CheckEntry> helpArray = hm.get(pair.getKey());
 				for (int i = 0; i < helpArray.size(); i++) {
 
-					if (helpArray.get(i).getREF().contains("-") || helpArray.get(i).getALT().contains("-")
-							|| helpArray.get(i).getREF().equals("N") || helpArray.get(i).getALT().length() > 1
-							|| helpArray.get(i).getREF().length() > 1) {
+					if (helpArray.get(i).getREF().contains("-") || helpArray.get(i).getREF().equals("N")) {
 						// skip indel, and 3107 on rCRS;
 					} else {
-						range.append(helpArray.get(i).getPOS() + ";");
+						
 						if (helpArray.get(i).getVAF() < 0.5) {
+							range.append(helpArray.get(i).getPOS() + ";");
 							if (helpArray.get(i).getREF().equals(helpArray.get(i).getPOS())) {
-								minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getREF()); //+ " " + helpArray.get(i).getVAF());
-								major.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getALT()); //+ " " + helpArray.get(i).getVAF());
+								minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getBaseMinor()); //+ " " + helpArray.get(i).getVAF());
+								major.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getBaseMajor()); //+ " " + helpArray.get(i).getVAF());
 							} else {
-								minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getALT()); //+ " " + helpArray.get(i).getVAF());
-								major.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getREF()); //+ " " + helpArray.get(i).getVAF());
+								minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getBaseMinor()); //+ " " + helpArray.get(i).getVAF());
+								major.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getBaseMajor()); //+ " " + helpArray.get(i).getVAF());
 							}
 						} else if (helpArray.get(i).getVAF() > 1-vaf) {
+							range.append(helpArray.get(i).getPOS() + ";");
 							if (helpArray.get(i).getREF().equals(helpArray.get(i).getPOS())) {
-								minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getALT()); // + " " + helpArray.get(i).getVAF());
-								major.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getREF()); // + " " + helpArray.get(i).getVAF());
+								minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getBaseMajor()); // + " " + helpArray.get(i).getVAF());
+								major.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getBaseMinor()); // + " " + helpArray.get(i).getVAF());
 							} else {
-								minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getREF()); //+ " " + helpArray.get(i).getVAF());
-								major.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getALT()); //+ " " + helpArray.get(i).getVAF());
+								minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getBaseMajor()); //+ " " + helpArray.get(i).getVAF());
+								major.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getBaseMinor()); //+ " " + helpArray.get(i).getVAF());
 							}
-						} else { // add fixed homoplasmies VAF == 1
-							minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getALT()); //+ " " + helpArray.get(i).getVAF());
-							major.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getALT()); //+ " " + helpArray.get(i).getVAF());
-						}
+						}/*
+						//TODO recheck if homoplasmies are neccessary
+						 else { // add fixed homoplasmies VAF == 1
+							minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getBaseMajor()); //+ " " + helpArray.get(i).getVAF());
+							major.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getBaseMajor()); //+ " " + helpArray.get(i).getVAF());
+						}*/
 					}
-					//minor.setRANGE(range.toString()); 
-					//major.setRANGE(range.toString());
 					
-					minor.setRANGE("1-16569");
-					major.setRANGE("1-16569");
+					//use only occurrences
+					minor.setRANGE(range.toString()); 
+					major.setRANGE(range.toString());
+										
+					//minor.setRANGE("1-16569");
+					//major.setRANGE("1-16569");
 			
 				}
 				fw.write(minor.getString());
@@ -128,6 +133,7 @@ public class HaploCheckBuilder {
 				it.remove(); // avoids a ConcurrentModificationException
 			}
 			fw.close();
+			System.out.println("File written - you can now open the result file in HaploGrep2");
 		} catch (Exception e) {
 			System.out.println("ERROR");
 			e.printStackTrace();
