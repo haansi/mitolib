@@ -51,9 +51,12 @@ public class HaploCheckReader  extends Tool {
 			return builder.build();
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
+			System.out.println("OOOJE");
 			e.printStackTrace();
 			return -1;
 		} catch (IOException e) {
+			
+			System.out.println("OOOJE 2");
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return -1;

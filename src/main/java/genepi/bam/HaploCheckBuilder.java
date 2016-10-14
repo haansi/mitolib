@@ -71,6 +71,7 @@ public class HaploCheckBuilder {
 				}
 				idReader.close();
 			} catch (Exception e) {
+				System.out.println("Column names not present as expected: ID, REFrCRS, BaseMajor, BaseMinor, VAF");
 				e.printStackTrace();
 			}
 

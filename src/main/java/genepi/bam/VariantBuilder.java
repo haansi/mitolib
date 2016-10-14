@@ -54,6 +54,14 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
+import org.apache.commons.math3.stat.*;
+import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.inference.TTest;
+import org.apache.commons.math3.stat.interval.AgrestiCoullInterval;
+import org.apache.commons.math3.stat.interval.ClopperPearsonInterval;
+import org.apache.commons.math3.stat.interval.ConfidenceInterval;
+import org.apache.commons.math3.stat.interval.WilsonScoreInterval;
 import org.apache.commons.io.FileUtils;
 
 public class VariantBuilder {
@@ -363,7 +371,7 @@ public class VariantBuilder {
 		
 		bwHsd.write(name+"\t1-16569\t\t");
 		
-		bw.write("ID\tmtSNP\tPOS\tREFrCRS\tcountMajor\tBaseMajor\tcountMinor\tBaseMinor\tVAF\n");
+		bw.write("ID\tmtSNP\tPOS\tREFrCRS\tcountMajor\tBaseMajor\tcountMinor\tBaseMinor\tVAF\tClopperPearson_95_low\tClopperPearson_95_high\n");
 		for (Entry<Integer, String> entry : variants.entrySet()) {
 			
 			String help = entry.getValue();
@@ -379,11 +387,15 @@ public class VariantBuilder {
 			String ALT =	st.nextToken(); 	//VariantMin
 			double hetlevel = Double.valueOf(st.nextToken());
 			if (hetlevel >= het){
-				if (Ref.equals(Max))
-					bw.write(name +"\t" + entry.getKey() + Max+ "\t" + entry.getKey() +  "\t" + Ref + "\t" +countMajor+"\t" +Max + "\t"+numberMin + "\t" + ALT + "\t"+ hetlevel+"\n");
+				int n = countMajor+numberMin;
+				double p = (double)(numberMin/(double)(n));
+				
+				if (Ref.equals(Max)){
+					bw.write(name +"\t" + entry.getKey() + Max+ "\t" + entry.getKey() +  "\t" + Ref + "\t" +countMajor+"\t" +Max + "\t"+numberMin + "\t" + ALT + "\t"+ hetlevel+"\t"+formatter.format(getClopperPearsonInterval(n, numberMin, 0.95).getLowerBound())+"\t"+formatter.format(getClopperPearsonInterval(n, numberMin, 0.95).getUpperBound())+"\n");
+				}
 				else if (!Ref.equals("N"))
 					{
-					bw.write(name + "\t" + entry.getKey() + Max+ "\t"+ entry.getKey() +  "\t" + Ref + "\t"+ countMajor +"\t" +Max + "\t"+numberMin + "\t" + ALT + "\t"+ formatter.format(1-hetlevel)+"\n");
+					bw.write(name + "\t" + entry.getKey() + Max+ "\t"+ entry.getKey() +  "\t" + Ref + "\t"+ countMajor +"\t" +Max + "\t"+numberMin + "\t" + ALT + "\t"+ formatter.format(1-hetlevel)+"\t"+formatter.format(getClopperPearsonInterval(n, numberMin, 0.95).getLowerBound())+"\t"+formatter.format(getClopperPearsonInterval(n, numberMin, 0.95).getUpperBound())+"\n");
 					bwHsd.write(entry.getKey() + Max+"\t");
 					}
 						
@@ -408,6 +420,56 @@ public class VariantBuilder {
 		fstream1.close();
 		
 	}
+	
+	/**
+	 * Normal Approximation Method of the Binomial Confidence Interval
+	 * according: http://www.sigmazone.com/binomial_confidence_interval.htm
+	 * 
+	 * where p = proportion of interest
+	 * n = sample size
+	 * α = desired confidence
+	 * z1- α/2 = “z value” for desired level of confidence
+	 * z1- α/2 = 1.96 for 95% confidence
+	 * z1- α/2 = 2.57 for 99% confidence
+	 * z1- α/2 = 3 for 99.73% confidence
+	 * 
+	 * @param n amount of observed bases
+	 * @param p ratio of heteroplasmy
+	 * @param low -1 lower confidence / 1 upper 
+	 * @return
+	 */
+	private double binConfInterval(int n, double p, int low) {
+		return p+(1.96*low)*Math.sqrt((p*(1-p))/n);
+	}
+	
+	/**
+	 * WilsonScoreInterval 
+	 * http://commons.apache.org/proper/commons-math/javadocs/api-3.6.1/index.html
+	 * @param coverage
+	 * @param variants
+	 * @param confidencelevel
+	 * @return
+	 */
+	private ConfidenceInterval getWilsonScoreInterval(int coverage, int variants, double confidencelevel){
+		WilsonScoreInterval wi = new WilsonScoreInterval();
+		ConfidenceInterval ci = wi.createInterval(coverage, variants, confidencelevel);
+		
+		return ci;
+	}
+	
+	
+	private ConfidenceInterval getAgrestiCoullInterval(int coverage, int variants, double confidencelevel){
+		AgrestiCoullInterval aci = new AgrestiCoullInterval();
+		ConfidenceInterval ci = aci.createInterval(coverage, variants, confidencelevel);
+		return ci;
+	}
+	
+	private ConfidenceInterval getClopperPearsonInterval(int coverage, int variants, double confidencelevel){
+		ClopperPearsonInterval cpi = new ClopperPearsonInterval();
+		ConfidenceInterval ci = cpi.createInterval(coverage, variants, confidencelevel);
+		return ci;
+	}
+	
 
 	private void writePileup(String filename, int size, int columns, int[][] result) throws IOException {
 		File fout = new File(filename);
