@@ -105,11 +105,10 @@ public class VariantBuilder {
 			ReferenceSequence reference = ref.nextSequence();
 
 			int size = getReferenceLength(dict, reference.length());
-			
-			
-			String name = reader.getResourceDescription().substring(reader.getResourceDescription().lastIndexOf('\\') + 1);
-			
-			name = name.split("\\.")[0];
+			String name = SampleName;
+			System.out.println("NAME " + name);
+	
+	
 	
 			int total = 0;
 			int tot100M = 0;
@@ -302,6 +301,7 @@ public class VariantBuilder {
 			
 	
 			writePileup(outDirectory+File.separator+name+".pileup", size, columns, result); 
+			System.out.println(outDirectory+File.separator+name);
 
 			System.out.println("All Reads " + total +" A\tC\tG\tT\tN\tD\n"
 					+ "Forward\t"+countAf+"\t"+countCf+"\t"+countGf+"\t"+countTf+"\t"+countNf+"\t"+countDf+"\n"

@@ -10,9 +10,9 @@ import java.util.StringTokenizer;
 import genepi.base.Tool;
 
 
-public class HaploCheckReader  extends Tool {
+public class HeteroplasmyReader  extends Tool {
 
-	public HaploCheckReader(String[] args) {
+	public HeteroplasmyReader(String[] args) {
 		super(args);
 	}
 	
@@ -21,18 +21,15 @@ public class HaploCheckReader  extends Tool {
 	public void init() {
 
 		System.out
-				.println("Split mitochondrial variants according heteroplasmy level - in profiles for HaploGrep 2\n\n");
+				.println("Split mitochondrial variants from heteroplasmies.txt from mtDNA-Server (https://mtdna-server.uibk.ac.at) - in profiles for HaploGrep 2\n\n");
 
 	}
 
 	@Override
 	public void createParameters() {
 
-		addParameter("in", 	"input called variants with heteroplasmies");
+		addParameter("in", 	"input heteroplasmies.txt from mtDNA-Server");
 		addParameter("out", "output file for HaploGrep 2");
-		addOptionalParameter(
-				"VAF",
-				"optional: set the Variant Allele Frequency (VAF), default 0.1 = 10%)", DOUBLE);
 	}
 
 	@Override
@@ -40,28 +37,22 @@ public class HaploCheckReader  extends Tool {
 
 		String in = (String) getValue("in");
 		String out = (String) getValue("out");
-	
-		double vaf = (Double) getValue("VAF");
 
-		HaploCheckBuilder builder = new HaploCheckBuilder(in, out);
-		builder.setVaf(vaf);
-
+		HeteroplasmyBuilder builder = new HeteroplasmyBuilder(in, out);
 
 		try {
 			return builder.build();
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
+			System.out.println("OOOJE");
 			e.printStackTrace();
 			return -1;
 		} catch (IOException e) {
+			
+			System.out.println("OOOJE 2");
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return -1;
 		}
 	}
-
-	public static void main(String[] args) {
-		new BAMReader(args).start();
-	}
-
 }

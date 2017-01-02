@@ -10,9 +10,9 @@ import java.util.StringTokenizer;
 import genepi.base.Tool;
 
 
-public class HaploCheckReader  extends Tool {
+public class LoFreqReader  extends Tool {
 
-	public HaploCheckReader(String[] args) {
+	public LoFreqReader(String[] args) {
 		super(args);
 	}
 	
@@ -21,18 +21,15 @@ public class HaploCheckReader  extends Tool {
 	public void init() {
 
 		System.out
-				.println("Split mitochondrial variants according heteroplasmy level - in profiles for HaploGrep 2\n\n");
+				.println("Split mitochondrial variants according the VCF file generated with LoFreq\n\n");
 
 	}
 
 	@Override
 	public void createParameters() {
 
-		addParameter("in", 	"input called variants with heteroplasmies");
-		addParameter("out", "output file for HaploGrep 2");
-		addOptionalParameter(
-				"VAF",
-				"optional: set the Variant Allele Frequency (VAF), default 0.1 = 10%)", DOUBLE);
+		addParameter("in", 	"input called variants with LoFreq");
+		addParameter("out", "output files for HaploGrep 2");
 	}
 
 	@Override
@@ -42,7 +39,6 @@ public class HaploCheckReader  extends Tool {
 		String out = (String) getValue("out");
 	
 		double vaf = (Double) getValue("VAF");
-
 		HaploCheckBuilder builder = new HaploCheckBuilder(in, out);
 		builder.setVaf(vaf);
 
@@ -51,9 +47,12 @@ public class HaploCheckReader  extends Tool {
 			return builder.build();
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
+			System.out.println("Something somewhere went terribly wrong");
 			e.printStackTrace();
 			return -1;
 		} catch (IOException e) {
+			
+			System.out.println("Something somewhere went terribly wrong, again");
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return -1;

@@ -25,10 +25,10 @@ public class BAMReader extends Tool {
 		addParameter("in", 	"input BAM/CRAM file (e.g. HG00096.bam)");
 		addParameter("out", "output directory");
 		addParameter("ref",	"input reference as fasta file (e.g. chrM.fasta)");
-		addOptionalParameter(
+		addParameter(
 				"VAF",
 				"optional: set the Variant Allele Frequency (VAF), default 0.1 = 10%)", DOUBLE);
-		addOptionalParameter(
+		addParameter(
 				"QUAL",
 				"optional: set the per Base Quality, default QUAL = 20)", INTEGER);
 

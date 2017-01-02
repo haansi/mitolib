@@ -18,6 +18,8 @@ public class Tools extends Toolbox {
 		
 		tools.addTool("bam2var", BAMReader.class);
 		tools.addTool("haplocheck", HaploCheckReader.class);
+		tools.addTool("haplocheck-mtDNA-Server", HeteroplasmyReader.class);
+		tools.addTool("lofreq", LoFreqReader.class);
 		
 		try {
 			tools.start();
