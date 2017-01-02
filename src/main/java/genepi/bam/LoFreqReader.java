@@ -38,10 +38,7 @@ public class LoFreqReader  extends Tool {
 		String in = (String) getValue("in");
 		String out = (String) getValue("out");
 	
-		double vaf = (Double) getValue("VAF");
-		HaploCheckBuilder builder = new HaploCheckBuilder(in, out);
-		builder.setVaf(vaf);
-
+		LoFreqBuilder builder = new LoFreqBuilder(in, out);
 
 		try {
 			return builder.build();

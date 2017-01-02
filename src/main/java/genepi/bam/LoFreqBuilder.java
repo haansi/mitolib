@@ -22,6 +22,10 @@ import genepi.io.table.reader.CsvTableReader;
 import genepi.io.table.reader.ITableReader;
 import genepi.objects.CheckEntry;
 import genepi.objects.HSDEntry;
+import htsjdk.samtools.util.CloseableIterator;
+import htsjdk.samtools.util.CloserUtil;
+import htsjdk.variant.variantcontext.VariantContext;
+import htsjdk.variant.vcf.VCFFileReader;
 
 public class LoFreqBuilder {
 	
@@ -42,9 +46,11 @@ public class LoFreqBuilder {
 	FileInputStream fstream;
 		try {
 			
-		//	input = directoryListing[0].getAbsolutePath();
+			//index not required, therefore false
+			VCFFileReader vcfReader = new VCFFileReader(new File(variantfile), false);
 			
-			ITableReader idReader = TableReaderFactory.getReader(variantfile);
+		
+			CloseableIterator<VariantContext> variantIter  = vcfReader.iterator();
 
 			HashMap<String, ArrayList<CheckEntry>> hm = new HashMap<String, ArrayList<CheckEntry>>();
 			FileWriter fw;
@@ -52,15 +58,24 @@ public class LoFreqBuilder {
 			fw.write("SampleID\tRange\tHaplogroup\tPolymorphisms");
 			fw.write(System.lineSeparator());
 			try {
-				while (idReader.next()) {
+				while (variantIter.hasNext()) {
+					final VariantContext vc = variantIter.next();
 					CheckEntry entry = new CheckEntry();
-					String id = idReader.getString("ID");
+					String id = variantfile;
 					entry.setID(id);
-					entry.setPOS(idReader.getInteger("POS"));
-					entry.setREF(idReader.getString("rCRS"));
-					entry.setBaseMajor(idReader.getString("TOP-BASE-FWD"));
-					entry.setBaseMinor(idReader.getString("MINOR-BASE-FWD"));
-					entry.setVAF(idReader.getDouble("HET-LEVEL"));
+					entry.setPOS(vc.getStart());
+					entry.setREF(vc.getReference().getBaseString());
+					double allelefreq = Double.valueOf(vc.getAttribute("AF").toString());
+					entry.setVAF(allelefreq);
+					if ((allelefreq)>0.50){
+						entry.setBaseMajor(vc.getAlleles().get(1).getBaseString());
+						entry.setBaseMinor(vc.getAlleles().get(0).getBaseString());
+					}
+					else{
+						entry.setBaseMajor(vc.getAlleles().get(0).getBaseString());
+						entry.setBaseMinor(vc.getAlleles().get(1).getBaseString());
+					}		
+				
 
 					if (hm.containsKey(id)) {
 						hm.get(id).add(entry);
@@ -69,11 +84,15 @@ public class LoFreqBuilder {
 						hm.get(id).add(entry);
 					}
 				}
-				idReader.close();
+			
 			} catch (Exception e) {
-				System.out.println("Column names not present as expected: ID, rCRS, TOP-BASE-FWD, MINOR-BASE-FWD, HET-LEVEL");
+				System.out.println("Column names not present as #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO:DP;AF;SB;DP4;CONSVAR ");
 				e.printStackTrace();
 			}
+			
+	        CloserUtil.close(variantIter);
+	        CloserUtil.close(vcfReader);
+			
 
 			Iterator it = hm.entrySet().iterator();
 			while (it.hasNext()) {
@@ -116,7 +135,8 @@ public class LoFreqBuilder {
 						 else { // add fixed homoplasmies VAF == 1
 							minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getBaseMajor()); //+ " " + helpArray.get(i).getVAF());
 							major.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getBaseMajor()); //+ " " + helpArray.get(i).getVAF());
-						}*/
+						}*/ 
+			
 					}
 					
 					//use only occurrences
@@ -138,7 +158,7 @@ public class LoFreqBuilder {
 		} catch (Exception e) {
 			System.out.println("ERROR");
 			e.printStackTrace();
-		}
+		} 
 		// Everything fine
 		return 0;
 	}
@@ -162,5 +182,6 @@ public class LoFreqBuilder {
 	public void setVaf(double vaf) {
 		this.vaf = vaf;
 	}
-	
+
 }
+	
