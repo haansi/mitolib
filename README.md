@@ -40,4 +40,4 @@ java -jar greenVC-0.1.jar lofreq --in inputfile.vcf --out haplogrepinput.hsd
 ```
 
 ### GUI
-Not providing any parameter opens a simple GUI, which performs the #bam2var# naive variant calling.
+Not providing any parameter opens a simple GUI, which performs the ** bam2var ** naive variant calling.
