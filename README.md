@@ -4,7 +4,15 @@
 
 This is a simple Java implementation to read BAM files based on the HTSJDK API (https://github.com/samtools/htsjdk) from small genomes like the mitochondrial genome into pileup files and performce a naive variant calling. Variant files of human mitochondrial genomes can be used for **mitochondrial haplogroup classification** with [HaploGrep2](http://haplogrep.uibk.ac.at).
 
-
+## Installation
+Download the latest executable JAR file from https://github.com/haansi/greenVC/releases 
+or install with maven (https://maven.apache.org/) 
+```bash
+git clone https://github.com/haansi/greenVC
+cd greenVC
+mvn install
+cd target
+```
 ## Usage Examples
 
 ### bam2var
