@@ -19,7 +19,7 @@ cd target
 This command writes the variants and the raw pileup file in an output folder 
 
 ```bash
-java -jar greenVC-0.1.5 jar bam2var --in data/HG01500.IBS.exome.MT.bam --out resultfolder  
+java -jar greenVC-0.1.5.jar bam2var --in data/HG01500.IBS.exome.MT.bam --out resultfolder  
                                   --ref data/rcrs.fasta  --VAF 0.2 --QUAL 20
 
 ```
