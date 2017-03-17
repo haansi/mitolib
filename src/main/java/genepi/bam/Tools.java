@@ -32,6 +32,7 @@ public class Tools extends Toolbox {
 			tools.addTool("haplocheck", HaploCheckReader.class);
 			tools.addTool("haplocheck-mtDNA-Server", HeteroplasmyReader.class);
 			tools.addTool("lofreq", LoFreqReader.class);
+			tools.addTool("heteroplasmy2table", Heteroplasmy2Table.class);
 			
 			try {
 				tools.start();
