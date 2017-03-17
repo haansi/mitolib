@@ -4,6 +4,7 @@ import genepi.io.text.LineReader;
 import genepi.objects.GenotypeLine;
 import genepi.util.Chromosome;
 import genepi.util.FileUtil;
+
 import htsjdk.samtools.CigarElement;
 import htsjdk.samtools.CigarOperator;
 import htsjdk.samtools.SAMRecord;
@@ -153,8 +154,6 @@ public class VariantBuilder {
 
 				String read = samRecord.getReadString();
 				
-			
-				
 				byte[] quality = samRecord.getBaseQualities();
 				if ((samRecord.getFlags() & 0x10) == 16  && samRecord.getMappingQuality() >20 ) {
 					
@@ -165,27 +164,27 @@ public class VariantBuilder {
 								posBase = checkRCRS(posBase);
 							switch (read.charAt(j)) {
 							case 'A':
-								result[posBase%(size-1)][0]++;
+								result[posBase%(size)][0]++;
 								countAf++;
 								break;
 							case 'C':
-								result[posBase%(size-1)][1]++;
+								result[posBase%(size)][1]++;
 								countCf++;
 								break;
 							case 'G':
-								result[posBase%(size-1)][2]++;
+								result[posBase%(size)][2]++;
 								countGf++;
 								break;
 							case 'T':
-								result[posBase%(size-1)][3]++;
+								result[posBase%(size)][3]++;
 								countTf++;
 								break;
 							case 'N':
-								result[posBase%(size-1)][4]++;
+								result[posBase%(size)][4]++;
 								countNf++;
 								break;
 							case 'D':
-								result[posBase%(size-1)][5]++;
+								result[posBase%(size)][5]++;
 								countDf++;
 								break;
 							default:
@@ -201,27 +200,27 @@ public class VariantBuilder {
 								posBase = checkRCRS(posBase);
 							switch (read.charAt(j)) {
 							case 'A':
-								result[posBase%(size-1)][6]++;
+								result[posBase%(size)][6]++;
 								countAr++;
 								break;
 							case 'C':
-								result[posBase%(size-1)][7]++;
+								result[posBase%(size)][7]++;
 								countCr++;
 								break;
 							case 'G':
-								result[posBase%(size-1)][8]++;
+								result[posBase%(size)][8]++;
 								countGr++;
 								break;
 							case 'T':
-								result[posBase%(size-1)][9]++;
+								result[posBase%(size)][9]++;
 								countTr++;
 								break;
 							case 'N':
-								result[posBase%(size-1)][10]++;
+								result[posBase%(size)][10]++;
 								countNr++;
 								break;
 							case 'D':
-								result[posBase%(size-1)][11]++;
+								result[posBase%(size)][11]++;
 								countDr++;
 								break;
 							default:
