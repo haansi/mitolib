@@ -161,7 +161,7 @@ public class VariantBuilder {
 
 										byte[] quality = samRecord.getBaseQualities();
 
-										if (quality[j] >= qualPhred) {
+										if (quality.length==0 || quality[j] >= qualPhred) {
 											int posBase = samRecord.getReferencePositionAtReadPosition(j + 1);
 											if ((samRecord.getFlags() & 0x10) == 0x10) {
 
@@ -197,7 +197,7 @@ public class VariantBuilder {
 												}
 
 											} else {
-												if (quality[j] >= qual) {
+												if (quality.length==0 || quality[j] >= qual) {
 
 													if (checkRCRS) // if HG19
 																	// Yoruba
