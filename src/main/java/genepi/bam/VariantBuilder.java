@@ -73,7 +73,7 @@ public class VariantBuilder {
 
 	public <BaqAlt> int build() throws MalformedURLException, IOException {
 
-		int qualPhred = 30; // default
+		//int qualPhred = 30; // default
 
 		String prev = "";
 		checkRCRS = false;
@@ -141,7 +141,7 @@ public class VariantBuilder {
 
 				// Convert read name to upper case.
 
-				if (samRecord.getMappingQuality() > qualPhred) {
+				if (samRecord.getMappingQuality() > qual) {
 
 					if (!samRecord.getReadUnmappedFlag()) {
 
@@ -153,7 +153,7 @@ public class VariantBuilder {
 								
 								if (!samRecord.getNotPrimaryAlignmentFlag()){
 								
-								if (Integer.valueOf(samRecord.getAttribute("AS") + "") > 200) {
+								if (Integer.valueOf(samRecord.getAttribute("AS") + "") > 00) {
 									
 									String read = samRecord.getReadString();
 
@@ -161,7 +161,7 @@ public class VariantBuilder {
 
 										byte[] quality = samRecord.getBaseQualities();
 
-										if (quality.length==0 || quality[j] >= qualPhred) {
+										if (quality.length==0 || quality[j] >= qual) {
 											int posBase = samRecord.getReferencePositionAtReadPosition(j + 1);
 											if ((samRecord.getFlags() & 0x10) == 0x10) {
 
