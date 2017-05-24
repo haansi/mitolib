@@ -4,7 +4,7 @@
 
 	<groupId>genepi</groupId>
 	<artifactId>greenVC</artifactId>
-	<version>0.1.4</version>
+	<version>0.1.6</version>
 	<packaging>jar</packaging>
 
 	<name>greenvariantcaller</name>

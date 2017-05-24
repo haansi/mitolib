@@ -153,7 +153,7 @@ public class VariantBuilder {
 								
 								if (!samRecord.getNotPrimaryAlignmentFlag()){
 								
-								if (Integer.valueOf(samRecord.getAttribute("AS") + "") > 00) {
+								if (Integer.valueOf(samRecord.getAttribute("AS") + "") > 200) {
 									
 									String read = samRecord.getReadString();
 
@@ -389,6 +389,7 @@ public class VariantBuilder {
 			String help = entry.getValue();
 			StringTokenizer st = new StringTokenizer(help);
 			String Ref = st.nextToken();
+			Ref = Ref.toUpperCase();
 			int countMajor = Integer.valueOf(st.nextToken());
 			String Max = st.nextToken();
 
