@@ -54,7 +54,7 @@ public class HaploCheckBuilder {
 			try {
 				while (idReader.next()) {
 					CheckEntry entry = new CheckEntry();
-					String id = idReader.getString("ID");
+					String id = idReader.getString("SampleID");
 					entry.setID(id);
 					entry.setPOS(idReader.getInteger("POS"));
 					entry.setREF(idReader.getString("REFrCRS"));
@@ -71,7 +71,7 @@ public class HaploCheckBuilder {
 				}
 				idReader.close();
 			} catch (Exception e) {
-				System.out.println("Column names not present as expected: ID, REFrCRS, BaseMajor, BaseMinor, VAF");
+				System.out.println("Column names not present as expected: SampleID, REFrCRS, BaseMajor, BaseMinor, VAF");
 				e.printStackTrace();
 			}
 

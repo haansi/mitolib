@@ -383,7 +383,7 @@ public class VariantBuilder {
 		bwHsd.write(name + "\t1-16569\t\t");
 
 		bw.write(
-				"ID\tmtSNP\tPOS\tREFrCRS\tcountMajor\tBaseMajor\tcountMinor\tBaseMinor\tVAF\tClopperPearson_95_low\tClopperPearson_95_high\n");
+				"SampleID\tmtSNP\tPOS\tREFrCRS\tcountMajor\tBaseMajor\tcountMinor\tBaseMinor\tVAF\tClopperPearson_95_low\tClopperPearson_95_high\n");
 		for (Entry<Integer, String> entry : variants.entrySet()) {
 
 			String help = entry.getValue();
