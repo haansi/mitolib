@@ -64,6 +64,9 @@ public class VariantBuilder {
 	private String outDirectory;
 	private double vaf;
 	private int qual;
+	private int mapqual;
+
+
 	private boolean checkRCRS;
 
 
@@ -140,7 +143,6 @@ public class VariantBuilder {
 			for (SAMRecord samRecord : reader) {
 
 				// Convert read name to upper case.
-
 				if (samRecord.getMappingQuality() > qual) {
 
 					if (!samRecord.getReadUnmappedFlag()) {
@@ -152,8 +154,10 @@ public class VariantBuilder {
 								//Alignmentscore AS between 0 and 255 (perfect)
 								
 								if (!samRecord.getNotPrimaryAlignmentFlag()){
-								
-								if (Integer.valueOf(samRecord.getAttribute("AS") + "") > 200) {
+									String help = (samRecord.getAttribute("AS") + "");
+						
+								if (help.equals("null") || Integer.valueOf(help)  >= mapqual){
+							
 									
 									String read = samRecord.getReadString();
 
@@ -237,7 +241,7 @@ public class VariantBuilder {
 										}
 									}
 								}
-
+									
 								total++;
 
 								if ((samRecord.getFlags() & 0x10) == 16) // check
@@ -617,23 +621,33 @@ public class VariantBuilder {
 		this.qual = qual;
 	}
 
+	public int getMapqual() {
+		return mapqual;
+	}
+
+	public void setMapqual(int mapqual) {
+		this.mapqual = mapqual;
+	}
+	
+	
+	
 	/**
-	 * quick copied from
+	 * quick adapted from
 	 * http://stackoverflow.com/questions/3634853/how-to-create-a-directory-in-java
 	 * 
 	 * @param directoryName
 	 * @return
 	 */
 	public boolean createFolder(String directoryName) {
-		File theDir = new File(directoryName);
+		File directory = new File(directoryName);
 		boolean result = false;
 		// if the directory does not exist, create it
-		if (!theDir.exists()) {
+		if (!directory.exists()) {
 			System.out.println("creating directory: " + directoryName);
 			result = false;
 
 			try {
-				theDir.mkdir();
+				directory.mkdir();
 				result = true;
 			} catch (SecurityException se) {
 				// handle it
