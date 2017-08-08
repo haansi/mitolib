@@ -50,6 +50,7 @@ public class TestBam2Var {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+        System.out.println(test);
        assertTrue(test.equals("HG01500.IBS.low_coverage.MT.bam	1-16569		146C	263G	750G	1438G	4769G	6776C	8860G	12957C	15326G	16519C	"));
 	}
 

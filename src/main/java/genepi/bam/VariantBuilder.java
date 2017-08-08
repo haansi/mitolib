@@ -110,18 +110,29 @@ public class VariantBuilder {
 
 		int readFWD = 0;
 		int readREV = 0;
-		int countAf = 0;
-		int countCf = 0;
-		int countGf = 0;
-		int countTf = 0;
-		int countDf = 0;
-		int countNf = 0;
-		int countAr = 0;
-		int countCr = 0;
-		int countGr = 0;
-		int countTr = 0;
-		int countDr = 0;
-		int countNr = 0;
+		int countAf = 0; //0
+		int countCf = 0; //1
+		int countGf = 0; //2
+		int countTf = 0; //3
+		int countNf = 0; //4
+		int countDf = 0; //5
+		
+		int countAr = 0; //6
+		int countCr = 0; //7
+		int countGr = 0; //8
+		int countTr = 0; //9
+		int countNr = 0; //10
+		int countDr = 0; //11
+
+		int countIAf = 0;//12
+		int countICf = 0;//13
+		int countIGf = 0;//14
+		int countITf = 0;//15
+		int countIAr = 0;//16
+		int countICr = 0;//17
+		int countIGr = 0;//18
+		int countITr = 0;//19
+
 		HashMap<Integer, HashMap<String, Integer>> hm = new HashMap<>();
 		Locale.setDefault(new Locale("en", "US"));
 		NumberFormat formatter = new DecimalFormat("#0.0000");
@@ -130,7 +141,7 @@ public class VariantBuilder {
 		double het = vaf; // heteroplasmy threshold to be applied (1=100%, 0.5 =
 							// 50%)
 		int row = size;
-		int columns = 12; // 4 base forward (A,C,G,T), N, D + all of it reverse
+		int columns = 20; // 4 base forward (A,C,G,T), N, D, I*4 + all of it reverse
 		int basePos =0;
 		int[][] result = new int[row][columns];
 		for (int i = 0; i < row; i++) {
@@ -147,7 +158,8 @@ public class VariantBuilder {
 
 					if (!samRecord.getReadUnmappedFlag()) {
 
-						if (!samRecord.getDuplicateReadFlag()) {
+//						if (!samRecord.getDuplicateReadFlag()) 
+						{
 
 							if (samRecord.getReadLength() > 25) {
 
@@ -196,6 +208,7 @@ public class VariantBuilder {
 													result[posBase % (size)][5]++;
 													countDf++;
 													break;
+												
 												default:
 													break;
 												}
@@ -244,18 +257,21 @@ public class VariantBuilder {
 									
 								total++;
 
-								if ((samRecord.getFlags() & 0x10) == 16) // check
-																			// forward
-																			// or
-																			// reverse
+								if ((samRecord.getFlags() & 0x10) == 16) // check forward
+																			// or reverse
 									readREV++;
 								else
 									readFWD++;
 
 								Integer currentReferencePos = samRecord.getAlignmentStart();
+								int posCigar=0;
 
 								for (CigarElement cigarElement : samRecord.getCigar().getCigarElements()) {
-
+									
+									if (cigarElement.getOperator() != CigarOperator.S){
+									posCigar+= cigarElement.getLength();
+									}
+									
 									if (cigarElement.getOperator() == CigarOperator.D) {
 
 										Integer cigarElementStart = currentReferencePos;
@@ -279,32 +295,67 @@ public class VariantBuilder {
 										currentReferencePos += cigarElement.getLength();
 
 									/*
-									 * TODO check insertions if
-									 * (cigarElement.getOperator() ==
-									 * CigarOperator.I) {
-									 * 
-									 * Integer cigarElementStart =
-									 * currentReferencePos; Integer
-									 * cigarElementLength = cigarElement
-									 * .getLength();
-									 * 
-									 * int i = 1; while (i <=
-									 * cigarElementLength) {
-									 * 
-									 * BasePosition basePos = counts
-									 * .get(cigarElementStart + "." + i + "C");
-									 * 
-									 * if (basePos == null) { basePos = new
-									 * BasePosition();
-									 * counts.put(cigarElementStart + "." + i +
-									 * "C", basePos); }
-									 * 
-									 * if ((samRecord.getFlags() & 0x10) ==
-									 * 0x10) { basePos.addcRev(1); } else {
-									 * basePos.addcFor(1); }
-									 * 
-									 * i++; } }
+									 * TODO check insertions 
 									 */
+									  if  (cigarElement.getOperator() == 
+									  CigarOperator.I) {
+
+									  Integer  cigarElementLength = cigarElement.getLength();
+									 
+							 		  int i = 0; 
+									  while (i <=  cigarElementLength) {
+									  char insBase = samRecord.getReadString().charAt(posCigar-1+i);
+										  
+										
+									  if ((samRecord.getFlags() & 0x10) ==  0x10) { 
+										  //REVERSE
+										  switch (insBase) {
+											case 'A':
+												 result[currentReferencePos +i % (size)][16]++;
+												countIAr++;
+												break;
+											case 'C':
+												 result[currentReferencePos +i % (size)][17]++;
+												countICr++;
+												break;
+											case 'G':
+												 result[currentReferencePos +i % (size)][18]++;
+												countIGr++;
+												break;
+											case 'T':
+												 result[currentReferencePos +i % (size)][19]++;
+												countITr++;
+												break;
+											default:
+												break;
+										  }
+									  }
+									  else {
+										  //FORWARD
+										  switch (insBase) {
+											case 'A':
+												 result[currentReferencePos +i % (size)][16]++;
+												countIAf++;
+												break;
+											case 'C':
+												 result[currentReferencePos +i % (size)][17]++;
+												countICf++;
+												break;
+											case 'G':
+												 result[currentReferencePos +i % (size)][18]++;
+												countIGf++;
+												break;
+											case 'T':
+												 result[currentReferencePos +i % (size)][19]++;
+												countITf++;
+												break;
+											default:
+												break;
+								  		}
+									  }
+									  i++;
+									  } 
+									  }
 								}
 							}
 						}
@@ -320,29 +371,33 @@ public class VariantBuilder {
 		writePileup(outDirectory + File.separator + name + ".pileup", size, columns, result);
 		System.out.println(outDirectory + File.separator + name);
 
-		System.out.println("All Reads " + total + " A\tC\tG\tT\tN\tD\n" + "Forward\t" + countAf + "\t" + countCf + "\t"
-				+ countGf + "\t" + countTf + "\t" + countNf + "\t" + countDf + "\n" + "Reverse\t" + countAr + "\t"
-				+ countCr + "\t" + countGr + "\t" + countTr + "\t" + countNr + "\t" + countDr + "\n");
+		System.out.println("All Reads " + total + "\nStrand\t A\tC\tG\tT\tN\tD\tInsA\tInsC\tInsG\tInsT\n" + 
+		"Forward\t" + countAf + "\t" + countCf + "\t" + countGf + "\t" + countTf + "\t" + countNf + "\t" + countDf + "\t" + countIAf + "\t" + countICf + "\t" + countIGf + "\t" + countITf+ "\n" + 
+	    "Reverse\t" + countAr + "\t" + countCr + "\t" + countGr + "\t" + countTr + "\t" + countNr + "\t" + countDr + "\t" + countIAr + "\t" + countICr + "\t" + countIGr + "\t" + countITr + "\t" + "\n");
 
+		
+		//Internal Data Structure 
 		TreeMap<Integer, String> variants = new TreeMap<>();
+		TreeMap<Integer, String> indels = new TreeMap<>();
 
 		for (int i = 1; i < size; i++) {
 			int pos = i;
 			TreeMap<Integer, String> map = new TreeMap<Integer, String>(Collections.reverseOrder());
-
+			
+			if (checkRCRS){
 			if (pos >= 315 && pos <= 3107)
 				pos = pos - 2;
 			else if (pos > 3107 && pos <= 16192)
 				pos = pos - 1;
 			else if (pos > 16192)
 				pos = pos - 2;
+			}
 
 			map.put(result[pos][0] + result[pos][6], "A");
 			map.put(result[pos][1] + result[pos][7], "C");
 			map.put(result[pos][2] + result[pos][8], "G");
 			map.put(result[pos][3] + result[pos][9], "T");
 
-			double heteroplasmy = 0.0;
 			double major = 0;
 			// System.out.print("\n"+i+" "+ref.charAt(i-1)+" ");
 
@@ -431,6 +486,7 @@ public class VariantBuilder {
 						bwHsd.write(entry.getKey() + Max + "\t");
 					}
 				}
+	
 			} else {
 				if (!Ref.equals(Max)) {
 					bw.write(name + "\t" + entry.getKey() + Max + "\t" + entry.getKey() + "\t" + Ref + "\t" + countMajor
@@ -499,7 +555,7 @@ public class VariantBuilder {
 		File fout = new File(filename);
 		FileOutputStream fstream = new FileOutputStream(fout);
 		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fstream));
-		bw.write("POS\tA\tC\tG\tT\tN\tDEL\ta\tc\tg\tt\tn\tdel\n");
+		bw.write("POS\tA\tC\tG\tT\tN\tDEL\tINS\ta\tc\tg\tt\tn\tdel\tins\n");
 
 		for (int i = 0; i < size; i++) {
 			bw.write((i) + "\t");
