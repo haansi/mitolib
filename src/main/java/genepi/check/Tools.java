@@ -1,11 +1,9 @@
-package genepi.bam;
+package genepi.check;
 
 import java.lang.reflect.InvocationTargetException;
 
-import javax.swing.SwingUtilities;
-
 import genepi.base.Toolbox;
-import gui.greenGUI;
+
 
 public class Tools extends Toolbox {
 
@@ -18,21 +16,12 @@ public class Tools extends Toolbox {
 	public static void main (String[] args){
 		
 		if (args.length == 0) {
-	        System.out.println("No arguments - starting Gui. Start with ? for all console options");
-	        SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					new greenGUI().setVisible(true);
-				}
-			});
+	        System.out.println("No arguments provided");
 	      }else if (args.length > 0) {
-	    	Tools tools = new Tools("java -jar greenVC.jar", args);
+	    	Tools tools = new Tools("java -jar haplocheck.jar", args);
 			
-			tools.addTool("bam2var", BAMReader.class);
-			tools.addTool("haplocheck", HaploCheckReader.class);
-			tools.addTool("haplocheck-mtDNA-Server", HeteroplasmyReader.class);
-			tools.addTool("lofreq", LoFreqReader.class);
-			tools.addTool("heteroplasmy2table", Heteroplasmy2Table.class);
+			tools.addTool("splitHeteroplasmy", HeteroplasmyReader.class);
+			tools.addTool("haplogrepCheck", HaplogrepReader.class);
 			
 			try {
 				tools.start();

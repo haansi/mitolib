@@ -6,12 +6,10 @@ import java.util.Vector;
 
 public class CheckEntry {
 	
-	 String ID;
+	String ID;
 	 int POS;
 	 String REF;
-  	 String BaseMajor;
-	 String BaseMinor;
-	 
+	 String ALT;
 	 double VAF;
 	
 	 public String getID() {
@@ -32,17 +30,11 @@ public class CheckEntry {
 	public void setREF(String ref) {
 		this.REF = ref;
 	}
-	public String getBaseMajor() {
-		return BaseMajor;
+	public String getALT() {
+		return ALT;
 	}
-	public void setBaseMajor(String baseMajor) {
-		this.BaseMajor = baseMajor;
-	}
-	public String getBaseMinor() {
-		return BaseMinor;
-	}
-	public void setBaseMinor(String baseMinor) {
-		this.BaseMinor = baseMinor;
+	public void setALT(String alt) {
+		this.ALT = alt;
 	}
 	public double getVAF() {
 		return VAF;

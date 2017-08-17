@@ -1,4 +1,4 @@
-package genepi.bam;
+package genepi.check;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -35,6 +35,7 @@ public class HeteroplasmyBuilder {
 	public HeteroplasmyBuilder(String variantfile, String outfile) {
 		this.variantfile = variantfile;
 		this.outfile = outfile;
+		this.vaf = 0.01;
 	}
 
 	public int build() throws MalformedURLException, IOException {
@@ -46,21 +47,21 @@ public class HeteroplasmyBuilder {
 			
 			ITableReader idReader = TableReaderFactory.getReader(variantfile);
 
+
 			HashMap<String, ArrayList<CheckEntry>> hm = new HashMap<String, ArrayList<CheckEntry>>();
 			FileWriter fw;
-			fw = new FileWriter(new File(outfile));
+			fw = new FileWriter(outfile);
 			fw.write("SampleID\tRange\tHaplogroup\tPolymorphisms");
 			fw.write(System.lineSeparator());
 			try {
 				while (idReader.next()) {
 					CheckEntry entry = new CheckEntry();
-					String id = idReader.getString("SamppleID");
+					String id =  idReader.getString("SampleID"); //ID
 					entry.setID(id);
-					entry.setPOS(idReader.getInteger("POS"));
-					entry.setREF(idReader.getString("rCRS"));
-					entry.setBaseMajor(idReader.getString("TOP-BASE-FWD"));
-					entry.setBaseMinor(idReader.getString("MINOR-BASE-FWD"));
-					entry.setVAF(idReader.getDouble("HET-LEVEL"));
+					entry.setPOS(idReader.getInteger("Pos"));    //POS
+					entry.setREF(idReader.getString("Ref"));	//REF
+					entry.setALT(idReader.getString("Variant")); //ALT
+					entry.setVAF(idReader.getDouble("Variant-Level")); //ALT
 
 					if (hm.containsKey(id)) {
 						hm.get(id).add(entry);
@@ -71,7 +72,6 @@ public class HeteroplasmyBuilder {
 				}
 				idReader.close();
 			} catch (Exception e) {
-				System.out.println("Column names not present as expected: SampleID, rCRS, TOP-BASE-FWD, MINOR-BASE-FWD, HET-LEVEL");
 				e.printStackTrace();
 			}
 
@@ -81,65 +81,50 @@ public class HeteroplasmyBuilder {
 				HSDEntry minor = new HSDEntry();
 				HSDEntry major = new HSDEntry();
 				minor.setID(pair.getKey() + "_min");
-				StringBuffer range = new StringBuffer();
-				
+				minor.setRANGE("1-16569");
 				major.setID(pair.getKey() + "_maj");
-				
-
+				major.setRANGE("1-16569");
+				int hetcounter=0;
 				ArrayList<CheckEntry> helpArray = hm.get(pair.getKey());
 				for (int i = 0; i < helpArray.size(); i++) {
 
-					if (helpArray.get(i).getREF().contains("-") || helpArray.get(i).getREF().equals("N")) {
+					if (helpArray.get(i).getREF().contains("-") || helpArray.get(i).getALT().contains("-")
+							|| helpArray.get(i).getREF().equals("N") || helpArray.get(i).getALT().length() > 1
+							|| helpArray.get(i).getREF().length() > 1) {
 						// skip indel, and 3107 on rCRS;
 					} else {
-						
 						if (helpArray.get(i).getVAF() < 0.5) {
-							range.append(helpArray.get(i).getPOS() + ";");
-							if (helpArray.get(i).getREF().equals(helpArray.get(i).getPOS())) {
-								minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getBaseMinor()); //+ " " + helpArray.get(i).getVAF());
-								major.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getBaseMajor()); //+ " " + helpArray.get(i).getVAF());
-							} else {
-								minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getBaseMinor()); //+ " " + helpArray.get(i).getVAF());
-								major.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getBaseMajor()); //+ " " + helpArray.get(i).getVAF());
-							}
-						} else if (helpArray.get(i).getVAF() > 1-vaf) {
-							range.append(helpArray.get(i).getPOS() + ";");
-							if (helpArray.get(i).getREF().equals(helpArray.get(i).getPOS())) {
-								minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getBaseMajor()); // + " " + helpArray.get(i).getVAF());
-								major.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getBaseMinor()); // + " " + helpArray.get(i).getVAF());
-							} else {
-								minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getBaseMajor()); //+ " " + helpArray.get(i).getVAF());
-								major.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getBaseMinor()); //+ " " + helpArray.get(i).getVAF());
-							}
-						}/*
-						//TODO recheck if homoplasmies are neccessary
-						 else { // add fixed homoplasmies VAF == 1
-							minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getBaseMajor()); //+ " " + helpArray.get(i).getVAF());
-							major.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getBaseMajor()); //+ " " + helpArray.get(i).getVAF());
-						}*/
+							minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getREF());
+							major.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getALT());
+							hetcounter++;
+						} else if (helpArray.get(i).getVAF() >= 0.5 && helpArray.get(i).getVAF() < 1-vaf){
+							minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getALT());
+							major.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getREF());
+							hetcounter++;
+						}
+						else{
+							minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getALT());
+							major.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getALT());
+						}
+						
 					}
-					
-					//use only occurrences
-					minor.setRANGE(range.toString()); 
-					major.setRANGE(range.toString());
-										
-					//minor.setRANGE("1-16569");
-					//major.setRANGE("1-16569");
-			
 				}
+				if (hetcounter>0){
 				fw.write(minor.getString());
 				fw.write(System.lineSeparator());
 				fw.write(major.getString());
 				fw.write(System.lineSeparator());
+				}
 				it.remove(); // avoids a ConcurrentModificationException
 			}
 			fw.close();
-			System.out.println("File written - you can now open the result file in HaploGrep2");
+
+
 		} catch (Exception e) {
 			System.out.println("ERROR");
 			e.printStackTrace();
+			return -1;
 		}
-		// Everything fine
 		return 0;
 	}
 	
