@@ -3,11 +3,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>genepi</groupId>
-	<artifactId>greenVC</artifactId>
-	<version>0.1.8</version>
+	<artifactId>haplocheck</artifactId>
+	<version>0.1.0</version>
 	<packaging>jar</packaging>
 
-	<name>greenvariantcaller</name>
+	<name>haplocheck</name>
 	<url>http://maven.apache.org</url>
 
 	<properties>
@@ -102,7 +102,7 @@
 							<transformers>
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>genepi.bam.Tools</mainClass>
+									<mainClass>genepi.check.Tools</mainClass>
 								</transformer>
 							</transformers>
 
