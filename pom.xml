@@ -3,11 +3,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>genepi</groupId>
-	<artifactId>haplocheck</artifactId>
+	<artifactId>mitolib</artifactId>
 	<version>0.1.0</version>
 	<packaging>jar</packaging>
 
-	<name>haplocheck</name>
+	<name>mitolib</name>
 	<url>http://maven.apache.org</url>
 
 	<properties>
@@ -102,7 +102,7 @@
 							<transformers>
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>genepi.check.Tools</mainClass>
+									<mainClass>genepi.mitolib.Tools</mainClass>
 								</transformer>
 							</transformers>
 
