@@ -1,0 +1,2 @@
+SampleID	Major	Minor	Type
+LG-1-10-3000s.bam.bam	Poss	U	0	0.11	14	H 0	0.00	6

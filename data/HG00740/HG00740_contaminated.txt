@@ -1,0 +1,2 @@
+SampleID	Major	Minor	Type
+HG00740.fastq	High	B2b3a	10	0.03	31	L1b1a7a 0	0.97	80
