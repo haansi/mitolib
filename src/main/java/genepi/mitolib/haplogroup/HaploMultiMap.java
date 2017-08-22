@@ -92,7 +92,7 @@ public class HaploMultiMap {
 				if (maxEntry!=null){
 				for (int i = 0; i < maxEntry.getValue(); i++) {
 					mapq.values().removeAll(Collections.singleton(i));
-				}
+				} 
 
 				// no haplogroup with 1000 snps
 				int min = 1000;
@@ -202,7 +202,9 @@ public class HaploMultiMap {
 		//hm.getHaplogroup("data/HG00740/HG00740.hsd");
 		//hm.getHaplogroup("data/sim_H/sim_H2a2a1g.hsd");
 		//hm.getHaplogroup("data/sim_H/sim_H.hsd");
-		hm.getHaplogroup("data/1000G/1000G_phase1.hsd");
+		hm.getHaplogroup("data/1000G/1000G_P1.hsd");
+		hm.getHaplogroup("data/1000G/1000G_P3.hsd");
+		hm.getHaplogroup("data/LG1_10_3000/S4.hsd");
 	}
 
 }
