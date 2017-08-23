@@ -92,7 +92,7 @@ public class ContaminatonChecker  extends Tool {
 			ArrayList<ContaminationEntry> contArray = new  ArrayList<ContaminationEntry>();
 			FileWriter fw;
 			fw = new FileWriter(new File(outfile));
-			fw.write("SampleID\tMajor\tMinor\tType");
+			fw.write("SampleID\tContamination\tMinorHG\tMinorSNPs\tMinorLevel\tMajorHG\tMajorSNPs\tMajorLevel");
 			fw.write(System.lineSeparator());
 		
 			try {
@@ -125,12 +125,12 @@ public class ContaminatonChecker  extends Tool {
 						if (weight>0.7)
 							{
 							countContaminated ++;
-							fw.write(centry.getSampleId()+"\tHigh\t"+centry.getMajorId() +"\t"+ centry.majorRemaining+"\t" +formatter.format(meanMajor) +"\t"+ (majorfound.length() - majorfound.replaceAll(" ", "").length())+"\t" + centry.getMinorId()+" " + centry.minorRemaining+"\t" +formatter.format(meanMinor) +"\t"+ (minorfound.length() - minorfound.replaceAll(" ", "").length())+"\n");
+							fw.write(centry.getSampleId()+"\tHigh\t"+centry.getMajorId() +"\t"+ formatter.format(meanMajor) +"\t"+ (majorfound.length() - majorfound.replaceAll(" ", "").length())+"\t" + centry.getMinorId()+" " +formatter.format(meanMinor) +"\t"+ (minorfound.length() - minorfound.replaceAll(" ", "").length())+"\n");
 					}else if (notfound.length() - notfound.replaceAll(" ", "").length()>1){
-						fw.write(centry.getSampleId()+"\tInc.\t"+centry.getMajorId() +"\t"+ centry.majorRemaining+"\t" +formatter.format(meanMajor) +"\t"+ (majorfound.length() - majorfound.replaceAll(" ", "").length())+"\t" + centry.getMinorId()+" " + centry.minorRemaining+"\t" +formatter.format(meanMinor) +"\t"+ (minorfound.length() - minorfound.replaceAll(" ", "").length())+"\n");
+							fw.write(centry.getSampleId()+"\tInc.\t"+centry.getMajorId() +"\t"+ formatter.format(meanMajor) +"\t"+ (majorfound.length() - majorfound.replaceAll(" ", "").length())+"\t" + centry.getMinorId()+" " +formatter.format(meanMinor) +"\t"+ (minorfound.length() - minorfound.replaceAll(" ", "").length())+"\n");
 						}
 					else	{
-						fw.write(centry.getSampleId()+"\tPoss\t"+centry.getMajorId() +"\t"+ centry.majorRemaining+"\t" +formatter.format(meanMajor) +"\t"+ (majorfound.length() - majorfound.replaceAll(" ", "").length())+"\t" + centry.getMinorId()+" " + centry.minorRemaining+"\t" +formatter.format(meanMinor) +"\t"+ (minorfound.length() - minorfound.replaceAll(" ", "").length())+"\n");
+						fw.write(centry.getSampleId()+"\tPoss\t"+centry.getMajorId() +"\t"+ formatter.format(meanMajor) +"\t"+ (majorfound.length() - majorfound.replaceAll(" ", "").length())+"\t" + centry.getMinorId()+" "  +formatter.format(meanMinor) +"\t"+ (minorfound.length() - minorfound.replaceAll(" ", "").length())+"\n");
 						
 					}
 					}
