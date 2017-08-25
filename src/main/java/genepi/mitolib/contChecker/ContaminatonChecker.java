@@ -125,12 +125,12 @@ public class ContaminatonChecker  extends Tool {
 						if (weight>0.7)
 							{
 							countContaminated ++;
-							fw.write(centry.getSampleId()+"\tHigh\t"+centry.getMajorId() +"\t"+ formatter.format(meanMajor) +"\t"+ (majorfound.length() - majorfound.replaceAll(" ", "").length())+"\t" + centry.getMinorId()+" " +formatter.format(meanMinor) +"\t"+ (minorfound.length() - minorfound.replaceAll(" ", "").length())+"\n");
+							fw.write(centry.getSampleId()+"\tHigh\t"+centry.getMajorId() +"\t"+ formatter.format(meanMajor) +"\t"+ (majorfound.length() - majorfound.replaceAll(" ", "").length())+"\t" + centry.getMinorId()+"\t" +formatter.format(meanMinor) +"\t"+ (minorfound.length() - minorfound.replaceAll(" ", "").length())+"\n");
 					}else if (notfound.length() - notfound.replaceAll(" ", "").length()>1){
-							fw.write(centry.getSampleId()+"\tInc.\t"+centry.getMajorId() +"\t"+ formatter.format(meanMajor) +"\t"+ (majorfound.length() - majorfound.replaceAll(" ", "").length())+"\t" + centry.getMinorId()+" " +formatter.format(meanMinor) +"\t"+ (minorfound.length() - minorfound.replaceAll(" ", "").length())+"\n");
+							fw.write(centry.getSampleId()+"\tInc.\t"+centry.getMajorId() +"\t"+ formatter.format(meanMajor) +"\t"+ (majorfound.length() - majorfound.replaceAll(" ", "").length())+"\t" + centry.getMinorId()+"\t" +formatter.format(meanMinor) +"\t"+ (minorfound.length() - minorfound.replaceAll(" ", "").length())+"\n");
 						}
 					else	{
-						fw.write(centry.getSampleId()+"\tPoss\t"+centry.getMajorId() +"\t"+ formatter.format(meanMajor) +"\t"+ (majorfound.length() - majorfound.replaceAll(" ", "").length())+"\t" + centry.getMinorId()+" "  +formatter.format(meanMinor) +"\t"+ (minorfound.length() - minorfound.replaceAll(" ", "").length())+"\n");
+						fw.write(centry.getSampleId()+"\tPoss\t"+centry.getMajorId() +"\t"+ formatter.format(meanMajor) +"\t"+ (majorfound.length() - majorfound.replaceAll(" ", "").length())+"\t" + centry.getMinorId()+"\t"  +formatter.format(meanMinor) +"\t"+ (minorfound.length() - minorfound.replaceAll(" ", "").length())+"\n");
 						
 					}
 					}
