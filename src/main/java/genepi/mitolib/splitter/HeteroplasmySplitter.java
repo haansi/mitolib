@@ -74,10 +74,11 @@ public class HeteroplasmySplitter  extends Tool {
 				try {
 					while (idReader.next()) {
 						CheckEntry entry = new CheckEntry();
-						String id =  idReader.getString(HeaderNames.SampleId.colname()); //ID
+						String id =  idReader.getString(HeaderNames.SampleId.colname()); //SampleID
 						entry.setID(id);
-						entry.setPOS(idReader.getInteger(HeaderNames.Position.colname()));  //POS
-						entry.setREF(idReader.getString(HeaderNames.Reference.colname()));	//REF
+						
+						entry.setPOS(idReader.getInteger(HeaderNames.Position.colname()));  //Pos
+						entry.setREF(idReader.getString(HeaderNames.Reference.colname()));	//Ref
 						entry.setALT(idReader.getString(HeaderNames.VariantBase.colname())); //ALT
 						entry.setVAF(idReader.getDouble(HeaderNames.VariantLevel.colname())); //VAF
 
@@ -92,9 +93,10 @@ public class HeteroplasmySplitter  extends Tool {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-
+				int counter =0;
 				Iterator it = hm.entrySet().iterator();
 				while (it.hasNext()) {
+					counter++;
 					Map.Entry pair = (Map.Entry) it.next();
 					HSDEntry minor = new HSDEntry();
 					HSDEntry major = new HSDEntry();
@@ -105,7 +107,7 @@ public class HeteroplasmySplitter  extends Tool {
 					int hetcounter=0;
 					ArrayList<CheckEntry> helpArray = hm.get(pair.getKey());
 					for (int i = 0; i < helpArray.size(); i++) {
-
+						
 						if (helpArray.get(i).getREF().contains("-") || helpArray.get(i).getALT().contains("-")
 								|| helpArray.get(i).getREF().equals("N") || helpArray.get(i).getALT().length() > 1
 								|| helpArray.get(i).getREF().length() > 1) {
@@ -136,7 +138,7 @@ public class HeteroplasmySplitter  extends Tool {
 					it.remove(); // avoids a ConcurrentModificationException
 				}
 				fw.close();
-
+			System.out.println(counter +" samples processed\n" +counter*2 +" profiles written");
 
 			} catch (Exception e) {
 				System.out.println("ERROR");

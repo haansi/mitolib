@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -55,7 +56,7 @@ public class ContaminatonChecker  extends Tool {
 	
 
 		try {
-			return build(inHG2, inVar, out);
+			return build(inHG2, inVar, out, null);
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 			return -1;
@@ -66,7 +67,8 @@ public class ContaminatonChecker  extends Tool {
 	}
 	
 	
-	public int build(String inHG2, String inVar, String outfile) throws MalformedURLException, IOException {
+	
+	public int build(String inHG2, String inVar, String outfile, HashMap<String, Double> verifyBam) throws MalformedURLException, IOException {
 		double countEntries=0;
 		double countPossibleContaminated=0;
 		double countContaminated=0;
@@ -75,6 +77,7 @@ public class ContaminatonChecker  extends Tool {
 
 			ITableReader readTableLevels = TableReaderFactory.getReader(inVar);
 		
+			HashMap<String,ArrayList<Integer>> coverageMap=new HashMap<String,ArrayList<Integer>>(); 
 			//hahslevels contains key = sampleid+"-"+pos+variant. e.g.: HG00096-152C
 			HashMap<String, Double> heteroLevels = new HashMap<String, Double>();
 			HashMap<String, Integer> homoplasmies = new HashMap<String, Integer>();
@@ -85,6 +88,7 @@ public class ContaminatonChecker  extends Tool {
 					String ID = readTableLevels.getString(HeaderNames.SampleId.colname());
 					String key = ID+"-"+readTableLevels.getString(HeaderNames.Position.colname())+readTableLevels.getString(HeaderNames.VariantBase.colname());
 					double value = readTableLevels.getDouble(HeaderNames.VariantLevel.colname());
+					int cov= readTableLevels.getInteger("Coverage-Total");
 					if (vaf<1-0.01)
 					{
 						heteroLevels.put(key,value);
@@ -97,6 +101,10 @@ public class ContaminatonChecker  extends Tool {
 						
 						homoplasmies.put(key, 1);
 					}
+					if (coverageMap.get(ID) == null) {
+						coverageMap.put(ID, new ArrayList<Integer>());
+					}
+					coverageMap.get(ID).add(cov);
 				}
 				readTableLevels.close();
 			}catch (Exception e) {
@@ -109,7 +117,7 @@ public class ContaminatonChecker  extends Tool {
 
 			ArrayList<ContaminationEntry> contArray = new  ArrayList<ContaminationEntry>();
 			FileWriter fw = new FileWriter(new File(outfile));
-			fw.write("SampleID\tContamination\tMinorHG\tMinorSNPs\tMinorLevel\tMajorHG\tMajorSNPs\tMajorLevel");
+			fw.write("SampleID\tContamination\tMinorHG\tMinorSNPs\tMinorLevel\tMinorHGvariants\tMajorHG\tMajorSNPs\tMajorLevel\tMajorHGvariants\tVerifyScore\tmeanCovVar");
 			fw.write(System.lineSeparator());
 		
 			try {
@@ -117,6 +125,15 @@ public class ContaminatonChecker  extends Tool {
 					ContaminationEntry centry = new ContaminationEntry();
 					countEntries++;
 					String id =  readTableHaploGrep.getString("SampleID"); //ID
+					double verifyScore=0;
+					try{
+					if (verifyBam.containsKey(id.substring(0,7)));
+						verifyScore=verifyBam.get(id.substring(0,7));
+						
+					} catch (Exception e) {
+						// TODO: handle exception
+					}
+						
 					double weight =  readTableHaploGrep.getDouble("Overall_Rank"); //Rank
 					centry.setSampleId(id.split("_maj")[0]);
 					centry.setMajorId(readTableHaploGrep.getString("Haplogroup"));    //Major
@@ -127,7 +144,7 @@ public class ContaminatonChecker  extends Tool {
 					String majorfound = readTableHaploGrep.getString("Found_Polys");
 					double meanMajor = getMeanScores(centry.getSampleId(), majorfound, heteroLevels);
 					int[] countHomoplMajor=countHomoplasmies(centry.getSampleId(), majorfound, homoplasmies, homoplasmiesMeta);
-					
+					double meanCov = getMeaCoverage(id.split("_maj")[0], coverageMap);
 					//check second pair entry
 			
 					readTableHaploGrep.next();
@@ -138,31 +155,53 @@ public class ContaminatonChecker  extends Tool {
 					double meanMinor = getMeanScores(centry.getSampleId(), minorfound, heteroLevels);
 					int[] countHomoplMinor=countHomoplasmies(centry.getSampleId(), minorfound, homoplasmies, homoplasmiesMeta);
 					
+					int majMutfound = majorfound.length() - majorfound.replaceAll(" ", "").length();
+					int minMutfound = minorfound.length() - minorfound.replaceAll(" ", "").length();
+					
+					String homoplMajor = countHomoplMajor[0]+"/"+countHomoplMajor[1];
+					String homoplMinor = countHomoplMinor[0] +"/"+countHomoplMinor[1];
+				
+					//check if Haplogroup names are different:
 					if (!centry.getMajorId().equals(centry.getMinorId())) {
 						contArray.add(centry);
 						countPossibleContaminated++;
-						int majhetfound = majorfound.length() - majorfound.replaceAll(" ", "").length();
-						int minhetfound = minorfound.length() - minorfound.replaceAll(" ", "").length();
-						
-						String homoplMajor = countHomoplMajor[0]+"/"+countHomoplMajor[1];
-						String homoplMinor = countHomoplMinor[0] +"/"+countHomoplMinor[1];
-						
-						if ((majhetfound-countHomoplMajor[0]) !=(minhetfound-countHomoplMinor[0]) && majhetfound != minhetfound)
-							{
-							countContaminated ++;
-							fw.write(centry.getSampleId()+"\tHigh\t"+centry.getMajorId() +"\t"+ formatter.format(meanMajor) + "\t" + homoplMajor+"\t"+ majhetfound+"\t" + centry.getMinorId()+"\t" +formatter.format(meanMinor) + "\t" + homoplMinor +"\t"+ minhetfound+"\n");
-					}else if (notfound.length() - notfound.replaceAll(" ", "").length()>1){
-							fw.write(centry.getSampleId()+"\tInc.\t"+centry.getMajorId() +"\t"+ formatter.format(meanMajor) + "\t" + homoplMajor+"\t"+ majhetfound+"\t" + centry.getMinorId()+"\t" +formatter.format(meanMinor) + "\t" + homoplMinor +"\t"+ minhetfound+"\n");
+							
+						//check if one of the haplogroups is defined by at least 2 heteroplasmic variants
+						if ((majMutfound - countHomoplMajor[0]) > 2 ||  (minMutfound - countHomoplMinor[0]) >2) {
+							countContaminated++;
+							fw.write(centry.getSampleId() + "\tHigh\t" + centry.getMajorId() + "\t"
+									+ formatter.format(meanMajor) + "\t" + homoplMajor + "\t"
+									+ (majMutfound - countHomoplMajor[0]) + "\t" + centry.getMinorId() + "\t"
+									+ formatter.format(meanMinor) + "\t" + homoplMinor + "\t"
+									+ (minMutfound - countHomoplMinor[0]) +"\t"+verifyScore + "\t"+meanCov+"\n");
+						} else if ((minMutfound - countHomoplMinor[0]) >1) {// (notfound.length()
+																				// -
+																				// notfound.replaceAll("
+																				// ",
+																				// "").length()>1){
+							fw.write(centry.getSampleId() + "\tPoss\t" + centry.getMajorId() + "\t"									+ formatter.format(meanMajor) + "\t" + homoplMajor + "\t"
+									+ (majMutfound - countHomoplMajor[0]) + "\t" + centry.getMinorId() + "\t"
+									+ formatter.format(meanMinor) + "\t" + homoplMinor + "\t"
+									+ (minMutfound - countHomoplMinor[0]) +"\t"+verifyScore + "\t"+meanCov+ "\n");
+						} else {
+							fw.write(centry.getSampleId() + "\tPoss\t" + centry.getMajorId() + "\t"
+									+ formatter.format(meanMajor) + "\t" + homoplMajor + "\t"
+									+ (majMutfound - countHomoplMajor[0]) + "\t" + centry.getMinorId() + "\t"
+									+ formatter.format(meanMinor) + "\t" + homoplMinor + "\t"
+									+ (minMutfound - countHomoplMinor[0]) +"\t"+verifyScore + "\t"+meanCov+ "\n");
 						}
-					else	{
-						fw.write(centry.getSampleId()+"\tPoss\t"+centry.getMajorId() +"\t"+ formatter.format(meanMajor) + "\t" + homoplMajor +"\t"+ majhetfound+"\t" + centry.getMinorId()+"\t"  +formatter.format(meanMinor) + "\t" + homoplMinor  +"\t"+ minhetfound+"\n");
+
 					}
+
+					else {
+						fw.write(centry.getSampleId() + "\tNone\t" + centry.getMajorId() + "\t"
+								+ formatter.format(meanMajor) + "\t" + homoplMajor + "\t"
+								+ (majMutfound - countHomoplMajor[0]) + "\t" + centry.getMinorId() + "\t"
+								+ formatter.format(meanMinor) + "\t" + homoplMinor + "\t"
+								+ (minMutfound - countHomoplMinor[0]) +"\t"+verifyScore +"\t"+meanCov+ "\n");
 						
-					}
-				
-					else{
-						//samples where no contamination was found
-						//System.out.println(centry.getSampleId());
+						// samples where no contamination was found
+						// System.out.println(centry.getSampleId());
 					}
 				}
 				readTableHaploGrep.close();
@@ -229,24 +268,42 @@ public class ContaminatonChecker  extends Tool {
 		return 0;
 	}
 	
+
 	
 	private int[] countHomoplasmies(String sampleId, String found, HashMap<String, Integer> hmap, HashMap<String, Integer> hmapSize) {
 
 		int[] result = new int[2]; //0 = homoplasmies in haplogroup found 
 								   //1 = all homoplasmies in this sample	
 	
+			
 		HashMap<String, Integer> helpMap= new HashMap<>();
 
 		StringTokenizer st = new StringTokenizer(found, " ");
+		int common=0;
 		while (st.hasMoreTokens()){
 			String variant = st.nextToken();
-			helpMap.put(sampleId+"-"+variant, 1);
+			String key= sampleId+"-"+variant;
+			helpMap.put(key, 1);
+			if (hmap.containsKey(key))
+				common++;
 		}
 		long start=System.currentTimeMillis();
-		 result[0]= Maps.difference(hmap, helpMap).entriesInCommon().size();
+		 result[0]= common; //Maps.difference(hmap, helpMap).entriesInCommon().size();
 		// System.out.println(System.currentTimeMillis()-start);
 		 result[1]=hmapSize.get(sampleId);
 		return result;
+	}
+	
+	
+	private double getMeaCoverage(String sampleId, HashMap<String, ArrayList<Integer>> covMap) {
+		ArrayList<Integer> entries = covMap.get(sampleId);
+		int sum=0;
+		
+		for (int i=0; i < entries.size(); i++){
+			sum+=entries.get(i);
+		}
+		
+		return sum/entries.size();
 	}
 	
 		

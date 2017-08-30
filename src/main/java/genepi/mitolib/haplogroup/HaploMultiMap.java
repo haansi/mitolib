@@ -89,7 +89,9 @@ public class HaploMultiMap {
 
 				// remove all entries that don't show the max. number of
 				// possible SNPs
+				
 				if (maxEntry!=null){
+					
 				for (int i = 0; i < maxEntry.getValue(); i++) {
 					mapq.values().removeAll(Collections.singleton(i));
 				} 
@@ -202,9 +204,10 @@ public class HaploMultiMap {
 		//hm.getHaplogroup("data/HG00740/HG00740.hsd");
 		//hm.getHaplogroup("data/sim_H/sim_H2a2a1g.hsd");
 		//hm.getHaplogroup("data/sim_H/sim_H.hsd");
-		hm.getHaplogroup("data/1000G/1000G_P1.hsd");
-		hm.getHaplogroup("data/1000G/1000G_P3.hsd");
-		hm.getHaplogroup("data/LG1_10_3000/S4.hsd");
+	//	hm.getHaplogroup("data/1000G/1000G_P1.hsd");
+		hm.getHaplogroup("/media/hansi/SYSTEM/Documents and Settings/q016hw/Desktop/Projects/extern/oliveira/Imputation/phylotree17_genotypes_Vanessa.hsd");
+	//	hm.getHaplogroup("data/1000G/1000G_P3.hsd");
+	//	hm.getHaplogroup("data/LG1_10_3000/S4.hsd");
 	}
 
 }
