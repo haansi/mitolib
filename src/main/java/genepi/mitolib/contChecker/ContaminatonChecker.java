@@ -193,15 +193,20 @@ public class ContaminatonChecker  extends Tool {
 
 					}
 
-					else {
+					else if (meanCov<200){
+						fw.write(centry.getSampleId() + "\tLowCov\t" + centry.getMajorId() + "\t"
+								+ formatter.format(meanMajor) + "\t" + homoplMajor + "\t"
+								+ (majMutfound - countHomoplMajor[0]) + "\t" + centry.getMinorId() + "\t"
+								+ formatter.format(meanMinor) + "\t" + homoplMinor + "\t"
+								+ (minMutfound - countHomoplMinor[0]) +"\t"+verifyScore +"\t"+meanCov+ "\n");
+					}
+					else{
 						fw.write(centry.getSampleId() + "\tNone\t" + centry.getMajorId() + "\t"
 								+ formatter.format(meanMajor) + "\t" + homoplMajor + "\t"
 								+ (majMutfound - countHomoplMajor[0]) + "\t" + centry.getMinorId() + "\t"
 								+ formatter.format(meanMinor) + "\t" + homoplMinor + "\t"
 								+ (minMutfound - countHomoplMinor[0]) +"\t"+verifyScore +"\t"+meanCov+ "\n");
-						
-						// samples where no contamination was found
-						// System.out.println(centry.getSampleId());
+				
 					}
 				}
 				readTableHaploGrep.close();
