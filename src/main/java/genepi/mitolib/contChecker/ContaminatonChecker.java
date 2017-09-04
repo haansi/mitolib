@@ -277,10 +277,15 @@ public class ContaminatonChecker  extends Tool {
 	
 	private int[] countHomoplasmies(String sampleId, String found, HashMap<String, Integer> hmap, HashMap<String, Integer> hmapSize) {
 
+		
 		int[] result = new int[2]; //0 = homoplasmies in haplogroup found 
 								   //1 = all homoplasmies in this sample	
 	
-			
+		if (hmapSize.size()==0){
+			result[0]= 0;
+			result[1]=0; 
+			return result;
+		}
 		HashMap<String, Integer> helpMap= new HashMap<>();
 
 		StringTokenizer st = new StringTokenizer(found, " ");

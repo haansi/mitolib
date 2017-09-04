@@ -5,8 +5,8 @@ public enum HeaderNames {
    Position("Pos"),
    Reference("Ref"),
    VariantBase("Variant"),
-   VariantLevel("Variant-Level");
-
+   VariantLevel("Variant-Level"),
+   Coverage("Coverage-Total");
    private String ColName;
 
    HeaderNames(String colname) {

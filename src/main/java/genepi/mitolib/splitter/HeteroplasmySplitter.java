@@ -67,10 +67,7 @@ public class HeteroplasmySplitter  extends Tool {
 
 
 				HashMap<String, ArrayList<CheckEntry>> hm = new HashMap<String, ArrayList<CheckEntry>>();
-				FileWriter fw;
-				fw = new FileWriter(outfile);
-				fw.write("SampleID\tRange\tHaplogroup\tPolymorphisms");
-				fw.write(System.lineSeparator());
+			
 				try {
 					while (idReader.next()) {
 						CheckEntry entry = new CheckEntry();
@@ -93,51 +90,8 @@ public class HeteroplasmySplitter  extends Tool {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				int counter =0;
-				Iterator it = hm.entrySet().iterator();
-				while (it.hasNext()) {
-					counter++;
-					Map.Entry pair = (Map.Entry) it.next();
-					HSDEntry minor = new HSDEntry();
-					HSDEntry major = new HSDEntry();
-					minor.setID(pair.getKey() + "_min");
-					minor.setRANGE("1-16569");
-					major.setID(pair.getKey() + "_maj");
-					major.setRANGE("1-16569");
-					int hetcounter=0;
-					ArrayList<CheckEntry> helpArray = hm.get(pair.getKey());
-					for (int i = 0; i < helpArray.size(); i++) {
-						
-						if (helpArray.get(i).getREF().contains("-") || helpArray.get(i).getALT().contains("-")
-								|| helpArray.get(i).getREF().equals("N") || helpArray.get(i).getALT().length() > 1
-								|| helpArray.get(i).getREF().length() > 1) {
-							// skip indel, and 3107 on rCRS;
-						} else {
-							if (helpArray.get(i).getVAF() < 0.5) {
-								minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getREF());
-								major.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getALT());
-								hetcounter++;
-							} else if (helpArray.get(i).getVAF() >= 0.5 && helpArray.get(i).getVAF() < 1-vaf){
-								minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getALT());
-								major.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getREF());
-								hetcounter++;
-							}
-							else{
-								minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getALT());
-								major.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getALT());
-							}
-							
-						}
-					}
-					if (hetcounter>0){
-					fw.write(minor.getString());
-					fw.write(System.lineSeparator());
-					fw.write(major.getString());
-					fw.write(System.lineSeparator());
-					}
-					it.remove(); // avoids a ConcurrentModificationException
-				}
-				fw.close();
+			int counter = generateHSDfile(hm, outfile, vaf);	
+			
 			System.out.println(counter +" samples processed\n" +counter*2 +" profiles written");
 
 			} catch (Exception e) {
@@ -148,5 +102,56 @@ public class HeteroplasmySplitter  extends Tool {
 			return 0;
 		}
 	
-	
+	public static int generateHSDfile(HashMap<String, ArrayList<CheckEntry>> hm, String outfile, double vaf) throws Exception{
+		FileWriter fw;
+		fw = new FileWriter(outfile);
+		fw.write("SampleID\tRange\tHaplogroup\tPolymorphisms");
+		fw.write(System.lineSeparator());
+		int counter =0;
+		Iterator it = hm.entrySet().iterator();
+		while (it.hasNext()) {
+			counter++;
+			Map.Entry pair = (Map.Entry) it.next();
+			HSDEntry minor = new HSDEntry();
+			HSDEntry major = new HSDEntry();
+			minor.setID(pair.getKey() + "_min");
+			minor.setRANGE("1-16569");
+			major.setID(pair.getKey() + "_maj");
+			major.setRANGE("1-16569");
+			int hetcounter=0;
+			ArrayList<CheckEntry> helpArray = hm.get(pair.getKey());
+			for (int i = 0; i < helpArray.size(); i++) {
+				
+				if (helpArray.get(i).getREF().contains("-") || helpArray.get(i).getALT().contains("-")
+						|| helpArray.get(i).getREF().equals("N") || helpArray.get(i).getALT().length() > 1
+						|| helpArray.get(i).getREF().length() > 1) {
+					// skip indel, and 3107 on rCRS;
+				} else {
+					if (helpArray.get(i).getVAF() < 0.5) {
+						minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getREF());
+						major.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getALT());
+						hetcounter++;
+					} else if (helpArray.get(i).getVAF() >= 0.5 && helpArray.get(i).getVAF() < 1-vaf){
+						minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getALT());
+						major.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getREF());
+						hetcounter++;
+					}
+					else{
+						minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getALT());
+						major.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getALT());
+					}
+					
+				}
+			}
+			if (hetcounter>0){
+			fw.write(minor.getString());
+			fw.write(System.lineSeparator());
+			fw.write(major.getString());
+			fw.write(System.lineSeparator());
+			}
+			it.remove(); // avoids a ConcurrentModificationException
+		}
+		fw.close();
+	return counter;
+	}
 }
