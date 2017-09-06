@@ -46,7 +46,9 @@ public class ContaminatonChecker  extends Tool {
 
 		addParameter("inHG2", 	"input HaploGrep2 extended file");
 		addParameter("inVar", 	"input variant file");
+		addParameter("vaf", "threshold to be applied 0.01 for 1%");
 		addParameter("out", "output file of contaminated Samples");
+
 	}
 
 	@Override
@@ -55,10 +57,11 @@ public class ContaminatonChecker  extends Tool {
 		String inHG2 = (String) getValue("inHG2");
 		String inVar = (String) getValue("inVar");
 		String out = (String) getValue("out");
+		double threshold = (double) getValue("vaf"); 
 	
 
 		try {
-			return build(inHG2, inVar, out, null);
+			return build(inHG2, inVar, out, threshold, null);
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 			return -1;
@@ -70,10 +73,10 @@ public class ContaminatonChecker  extends Tool {
 	
 	
 	
-	public int build(String inHG2, String inVar, String outfile, HashMap<String, Double> verifyBam) throws MalformedURLException, IOException {
-		double countEntries=0;
-		double countPossibleContaminated=0;
-		double countContaminated=0;
+	public int build(String inHG2, String inVar, String outfile,double threshold, HashMap<String, Double> verifyBam) throws MalformedURLException, IOException {
+		int countEntries=0;
+		int countPossibleContaminated=0;
+		int countContaminated=0;
 		int countCovLow=0;
 		String ID="";
 		Vector vecov = new Vector<>();
@@ -95,7 +98,7 @@ public class ContaminatonChecker  extends Tool {
 					double value = readTableLevels.getDouble(HeaderNames.VariantLevel.colname());
 					int cov= readTableLevels.getInteger(HeaderNames.Coverage.colname());
 					vecov.add(cov);
-					if (vaf<1-0.01)
+					if (vaf<1-threshold)
 					{
 						heteroLevels.put(key,value);
 					}
@@ -119,11 +122,11 @@ public class ContaminatonChecker  extends Tool {
 			
 
 			CsvTableReader readTableHaploGrep = new CsvTableReader(inHG2, '\t', true);
-			NumberFormat formatter = new DecimalFormat("#0.00");  
+			NumberFormat formatter = new DecimalFormat("#0.000");  
 
 			ArrayList<ContaminationEntry> contArray = new  ArrayList<ContaminationEntry>();
 			FileWriter fw = new FileWriter(new File(outfile));
-			fw.write("SampleID\tContamination\tMinorHG\tMinorSNPs\tMinorLevel\tMinorHGvariants\tMajorHG\tMajorSNPs\tMajorLevel\tMajorHGvariants\tVerifyScore\tmeanCovVar");
+			fw.write("SampleID\tContamination\tMinorHG\tMinorLevel\tMinorSNPs\tMinorHGvariants\tMajorHG\tMajorLevel\tMajorSNPs\tMajorHGvariants\tVerifyScore\tmeanCovVar");
 			fw.write(System.lineSeparator());
 		
 			try {
@@ -172,10 +175,10 @@ public class ContaminatonChecker  extends Tool {
 						contArray.add(centry);
 						countPossibleContaminated++;
 							
-						//check if one of the haplogroups is defined by at least 2 heteroplasmic variants
-						if ((majMutfound - countHomoplMajor[0]) > 2 ||  (minMutfound - countHomoplMinor[0]) >2) {
+						//check if one of the haplogroups is defined by at least 2 heteroplasmic variants and haplogroup with different snps found
+						if ((majMutfound - countHomoplMajor[0]) > 2 ||  (minMutfound - countHomoplMinor[0]) >2  && (countHomoplMajor[1]== countHomoplMinor[1])){
 							countContaminated++;
-							fw.write(centry.getSampleId() + "\tHigh\t" + centry.getMajorId() + "\t"
+							fw.write(centry.getSampleId() + "\tCont.1.High\t" + centry.getMajorId() + "\t"
 									+ formatter.format(meanMajor) + "\t" + homoplMajor + "\t"
 									+ (majMutfound - countHomoplMajor[0]) + "\t" + centry.getMinorId() + "\t"
 									+ formatter.format(meanMinor) + "\t" + homoplMinor + "\t"
@@ -185,12 +188,12 @@ public class ContaminatonChecker  extends Tool {
 																				// notfound.replaceAll("
 																				// ",
 																				// "").length()>1){
-							fw.write(centry.getSampleId() + "\tPoss\t" + centry.getMajorId() + "\t"									+ formatter.format(meanMajor) + "\t" + homoplMajor + "\t"
+							fw.write(centry.getSampleId() + "\tCont.2.Med\t" + centry.getMajorId() + "\t"									+ formatter.format(meanMajor) + "\t" + homoplMajor + "\t"
 									+ (majMutfound - countHomoplMajor[0]) + "\t" + centry.getMinorId() + "\t"
 									+ formatter.format(meanMinor) + "\t" + homoplMinor + "\t"
 									+ (minMutfound - countHomoplMinor[0]) +"\t"+verifyScore + "\t"+meanCov+ "\n");
 						} else {
-							fw.write(centry.getSampleId() + "\tPoss\t" + centry.getMajorId() + "\t"
+							fw.write(centry.getSampleId() + "\tCont.3.Low\t" + centry.getMajorId() + "\t"
 									+ formatter.format(meanMajor) + "\t" + homoplMajor + "\t"
 									+ (majMutfound - countHomoplMajor[0]) + "\t" + centry.getMinorId() + "\t"
 									+ formatter.format(meanMinor) + "\t" + homoplMinor + "\t"
@@ -226,8 +229,8 @@ public class ContaminatonChecker  extends Tool {
 			System.out.println("---Verdict---");
 			System.out.println("Sample: " + ID);
 			System.out.println("Mean Variant Coverage:  " + getMean(vecov));
-			System.out.println("Samples possibly contaminated: " + countPossibleContaminated + " of " + countEntries  );
-			System.out.println("High indication:" +countContaminated );
+			System.out.println("Possibly contaminated: " + countPossibleContaminated + " of " + countEntries  );
+			System.out.println("High indication: " +countContaminated );
 			System.out.println("Coverage <200x: " + countCovLow  );
 			
 				
