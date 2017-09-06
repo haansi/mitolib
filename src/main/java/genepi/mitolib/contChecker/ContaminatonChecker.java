@@ -13,9 +13,11 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
+import java.util.Vector;
 
 import com.google.common.collect.Maps;
 
+import align.Sample;
 import genepi.base.Tool;
 import genepi.io.table.TableReaderFactory;
 import genepi.io.table.reader.CsvTableReader;
@@ -72,6 +74,9 @@ public class ContaminatonChecker  extends Tool {
 		double countEntries=0;
 		double countPossibleContaminated=0;
 		double countContaminated=0;
+		int countCovLow=0;
+		String ID="";
+		Vector vecov = new Vector<>();
 		
 		try {
 
@@ -85,10 +90,11 @@ public class ContaminatonChecker  extends Tool {
 			try {
 				while (readTableLevels.next()) {
 					double vaf = readTableLevels.getDouble(HeaderNames.VariantLevel.colname());
-					String ID = readTableLevels.getString(HeaderNames.SampleId.colname());
+					ID = readTableLevels.getString(HeaderNames.SampleId.colname());
 					String key = ID+"-"+readTableLevels.getString(HeaderNames.Position.colname())+readTableLevels.getString(HeaderNames.VariantBase.colname());
 					double value = readTableLevels.getDouble(HeaderNames.VariantLevel.colname());
 					int cov= readTableLevels.getInteger(HeaderNames.Coverage.colname());
+					vecov.add(cov);
 					if (vaf<1-0.01)
 					{
 						heteroLevels.put(key,value);
@@ -194,6 +200,7 @@ public class ContaminatonChecker  extends Tool {
 					}
 
 					else if (meanCov<200){
+						countCovLow++;
 						fw.write(centry.getSampleId() + "\tLowCov\t" + centry.getMajorId() + "\t"
 								+ formatter.format(meanMajor) + "\t" + homoplMajor + "\t"
 								+ (majMutfound - countHomoplMajor[0]) + "\t" + centry.getMinorId() + "\t"
@@ -215,17 +222,13 @@ public class ContaminatonChecker  extends Tool {
 			}
 			
 			
-			FileWriter fwMeta = new FileWriter(new File(outfile+".meta"));
-			fwMeta.write("group\tvalue\tnumbers\n");
-			fwMeta.write("High\t"+countContaminated/countEntries + "\t" + countContaminated+"\n");
-			fwMeta.write("Possible\t"+(countPossibleContaminated-countContaminated)/countEntries + "\t" + (countPossibleContaminated-countContaminated)+"\n");
-			fwMeta.write("Not found\t"+(countEntries- countPossibleContaminated)/countEntries + "\t" + (countEntries- countPossibleContaminated)+"\n");
-			fwMeta.close();
-			
 			System.out.println("");
 			System.out.println("---Verdict---");
-			System.out.println(countPossibleContaminated + " of " + countEntries + " Samples possibly contaminated" );
-			System.out.println(countContaminated + " very likely" );
+			System.out.println("Sample: " + ID);
+			System.out.println("Mean Variant Coverage:  " + getMean(vecov));
+			System.out.println("Samples possibly contaminated: " + countPossibleContaminated + " of " + countEntries  );
+			System.out.println("High indication:" +countContaminated );
+			System.out.println("Coverage <200x: " + countCovLow  );
 			
 				
 			fw.close();
@@ -242,6 +245,16 @@ public class ContaminatonChecker  extends Tool {
 	}
 	
 	
+	private double getMean(Vector vecov) {
+		int help=0;
+		for (int i=0; i< vecov.size(); i++)
+		{	
+			help+=Integer.parseInt(vecov.get(i)+"");
+		}
+		return help/vecov.size();
+	}
+
+
 	private double getMeanScores(String sampleId, String found, HashMap<String, Double> hmap) {
 		
 		double sum1 = 0;
