@@ -55,7 +55,6 @@ public class HaploGrepCMD  extends Tool {
 	public int run() {
 	
 		HaplogrepCMD.main(args); 
-	
 		return 0;
 	}
 	

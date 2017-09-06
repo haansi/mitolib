@@ -88,7 +88,7 @@ public class ContaminatonChecker  extends Tool {
 					String ID = readTableLevels.getString(HeaderNames.SampleId.colname());
 					String key = ID+"-"+readTableLevels.getString(HeaderNames.Position.colname())+readTableLevels.getString(HeaderNames.VariantBase.colname());
 					double value = readTableLevels.getDouble(HeaderNames.VariantLevel.colname());
-					int cov= readTableLevels.getInteger("Coverage-Total");
+					int cov= readTableLevels.getInteger(HeaderNames.Coverage.colname());
 					if (vaf<1-0.01)
 					{
 						heteroLevels.put(key,value);
@@ -222,7 +222,8 @@ public class ContaminatonChecker  extends Tool {
 			fwMeta.write("Not found\t"+(countEntries- countPossibleContaminated)/countEntries + "\t" + (countEntries- countPossibleContaminated)+"\n");
 			fwMeta.close();
 			
-			
+			System.out.println("");
+			System.out.println("---Verdict---");
 			System.out.println(countPossibleContaminated + " of " + countEntries + " Samples possibly contaminated" );
 			System.out.println(countContaminated + " very likely" );
 			

@@ -6,14 +6,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.HashMap;
 
 import org.junit.Test;
 
+import genepi.io.table.TableReaderFactory;
+import genepi.io.table.reader.ITableReader;
 import genepi.mitolib.contChecker.ContaminatonChecker;
 import genepi.mitolib.haplogroup.HaploGrepCMD;
+import genepi.mitolib.objects.HeaderNames;
 import genepi.mitolib.splitter.HeteroplasmySplitter;
-import server.main.HaplogrepCMD;
+
 
 public class TestContChecker {
 
@@ -46,12 +49,562 @@ public class TestContChecker {
 
 		ContaminatonChecker contChecker = new ContaminatonChecker(args);
 		try {
-			contChecker.build(outputHaploGrep, inputLevels, output);
+			contChecker.build(outputHaploGrep, inputLevels, output, null);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
+		FileInputStream fis;
+		try {
+			fis = new FileInputStream(new File(output));
+			String md5 = org.apache.commons.codec.digest.DigestUtils.md5Hex(fis);
+			fis.close();
+			assertEquals("ab128f17d5f4a0db97abd2c2a35196e9", md5);
+			} catch (FileNotFoundException e) {
+			fail("file not generated");
+			e.printStackTrace();
+		} catch (IOException e) {
+			fail("Hash not generated");
+			e.printStackTrace();
+		}
+	
+	}
+	
+	@Test
+	public void test1000G_greenVC() {
+		
+		String path="data/1000G/1000G_txt/";
+		String inputLevels = path+"all.txt";
+		String outputHsd = inputLevels.split("\\.")[0]+".hsd";
+		String outputHaploGrep = inputLevels.split("\\.")[0]+".haplogrep.txt";
+		String output = inputLevels.split("\\.")[0]+"contaminated.txt";
+
+		HashMap<String, Double> verifyBamIDScoresFree = new HashMap<String, Double>();
+		HashMap<String, Double> verifyBamIDScoresChip = new HashMap<String, Double>();
+		
+		ITableReader readTableLevels = TableReaderFactory.getReader("data/1000G/VerifyBamId_cont_max.txt");
+		try {
+			while (readTableLevels.next()) {
+				String SampleID = readTableLevels.getString("ID");
+				double free_contam = readTableLevels.getDouble("free_contam");
+				double chip_contam = readTableLevels.getDouble("chip_contam");
+				verifyBamIDScoresFree.put(SampleID, free_contam);
+				verifyBamIDScoresChip.put(SampleID, chip_contam);
+			}
+		}
+			catch (Exception e) {
+				// TODO: handle exception
+			}
+		
+	
+		String[] args = new String[] {inputLevels, outputHsd};
+		HeteroplasmySplitter splitter = new HeteroplasmySplitter(args);
+		try {
+			splitter.build(inputLevels, outputHsd, 0.01); //TEST WITH VAF 1% VAF
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		String[] testArgs ={"-format", "hsd", "-in", outputHsd,"-out",outputHaploGrep, "-phylotree","17"};
+		String strArgs ="--format hsd --in "+ outputHsd + "--out "+ outputHaploGrep+ "--phylotree 17";
+		
+		HaploGrepCMD hg = new HaploGrepCMD(testArgs);
+		hg.setArgs(testArgs);
+		hg.run();
+		
+		args = new String[] {outputHaploGrep, inputLevels, output};
+
+		ContaminatonChecker contChecker = new ContaminatonChecker(args);
+		try {
+			contChecker.build(outputHaploGrep, inputLevels, output, verifyBamIDScoresFree);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		FileInputStream fis;
+		try {
+			fis = new FileInputStream(new File(output));
+			String md5 = org.apache.commons.codec.digest.DigestUtils.md5Hex(fis);
+			fis.close();
+			assertEquals("ab128f17d5f4a0db97abd2c2a35196e9", md5);
+			} catch (FileNotFoundException e) {
+			fail("file not generated");
+			e.printStackTrace();
+		} catch (IOException e) {
+			fail("Hash not generated");
+			e.printStackTrace();
+		}
+	
+	}
+	
+	@Test
+	public void test1000G_High_chip_Lofreq() {
+		
+		String path="data/validatebamid//";
+		String inputLevels = path+"High_Chip_Mix_Lofreq.txt";
+		String outputHsd = inputLevels.split("\\.")[0]+".hsd";
+		String outputHaploGrep = inputLevels.split("\\.")[0]+".haplogrep.txt";
+		String output = inputLevels.split("\\.")[0]+"contaminated.txt";
+
+		HashMap<String, Double> verifyBamIDScoresFree = new HashMap<String, Double>();
+		HashMap<String, Double> verifyBamIDScoresChip = new HashMap<String, Double>();
+		
+		ITableReader readTableLevels = TableReaderFactory.getReader("data/1000G/VerifyBamId_cont_max.txt");
+		try {
+			while (readTableLevels.next()) {
+				String SampleID = readTableLevels.getString("ID");
+				double free_contam = readTableLevels.getDouble("free_contam");
+				double chip_contam = readTableLevels.getDouble("chip_contam");
+				verifyBamIDScoresFree.put(SampleID, free_contam);
+				verifyBamIDScoresChip.put(SampleID, chip_contam);
+			}
+		}
+			catch (Exception e) {
+				// TODO: handle exception
+			}
+		
+	
+		String[] args = new String[] {inputLevels, outputHsd};
+		HeteroplasmySplitter splitter = new HeteroplasmySplitter(args);
+		try {
+			splitter.build(inputLevels, outputHsd, 0.01); //TEST WITH VAF 1% VAF
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		String[] testArgs ={"-format", "hsd", "-in", outputHsd,"-out",outputHaploGrep, "-phylotree","17"};
+		String strArgs ="--format hsd --in "+ outputHsd + "--out "+ outputHaploGrep+ "--phylotree 17";
+		
+		HaploGrepCMD hg = new HaploGrepCMD(testArgs);
+		hg.setArgs(testArgs);
+		hg.run();
+		
+		args = new String[] {outputHaploGrep, inputLevels, output};
+
+		ContaminatonChecker contChecker = new ContaminatonChecker(args);
+		try {
+			contChecker.build(outputHaploGrep, inputLevels, output, verifyBamIDScoresFree);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		FileInputStream fis;
+		try {
+			fis = new FileInputStream(new File(output));
+			String md5 = org.apache.commons.codec.digest.DigestUtils.md5Hex(fis);
+			fis.close();
+			assertEquals("ab128f17d5f4a0db97abd2c2a35196e9", md5);
+			} catch (FileNotFoundException e) {
+			fail("file not generated");
+			e.printStackTrace();
+		} catch (IOException e) {
+			fail("Hash not generated");
+			e.printStackTrace();
+		}
+	
+	}
+	
+
+	
+	@Test
+	public void test1000G_High_free_mtDNA_server() {
+		
+		String path="data/validatebamid//";
+		String inputLevels = path+"High_Free_Mix_mtdna_server.txt";
+		String outputHsd = inputLevels.split("\\.")[0]+".hsd";
+		String outputHaploGrep = inputLevels.split("\\.")[0]+".haplogrep.txt";
+		String output = inputLevels.split("\\.")[0]+"contaminated.txt";
+
+		HashMap<String, Double> verifyBamIDScoresFree = new HashMap<String, Double>();
+		HashMap<String, Double> verifyBamIDScoresChip = new HashMap<String, Double>();
+		
+		ITableReader readTableLevels = TableReaderFactory.getReader("data/1000G/VerifyBamId_cont_max.txt");
+		try {
+			while (readTableLevels.next()) {
+				String SampleID = readTableLevels.getString("ID");
+				double free_contam = readTableLevels.getDouble("free_contam");
+				double chip_contam = readTableLevels.getDouble("chip_contam");
+				verifyBamIDScoresFree.put(SampleID, free_contam);
+				verifyBamIDScoresChip.put(SampleID, chip_contam);
+			}
+		}
+			catch (Exception e) {
+				// TODO: handle exception
+			}
+		
+	
+		String[] args = new String[] {inputLevels, outputHsd};
+		HeteroplasmySplitter splitter = new HeteroplasmySplitter(args);
+		try {
+			splitter.build(inputLevels, outputHsd, 0.01); //TEST WITH VAF 1% VAF
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		String[] testArgs ={"-format", "hsd", "-in", outputHsd,"-out",outputHaploGrep, "-phylotree","17"};
+		String strArgs ="--format hsd --in "+ outputHsd + "--out "+ outputHaploGrep+ "--phylotree 17";
+		
+		HaploGrepCMD hg = new HaploGrepCMD(testArgs);
+		hg.setArgs(testArgs);
+		hg.run();
+		
+		args = new String[] {outputHaploGrep, inputLevels, output};
+
+		ContaminatonChecker contChecker = new ContaminatonChecker(args);
+		try {
+			contChecker.build(outputHaploGrep, inputLevels, output, verifyBamIDScoresFree);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		FileInputStream fis;
+		try {
+			fis = new FileInputStream(new File(output));
+			String md5 = org.apache.commons.codec.digest.DigestUtils.md5Hex(fis);
+			fis.close();
+			assertEquals("ab128f17d5f4a0db97abd2c2a35196e9", md5);
+			} catch (FileNotFoundException e) {
+			fail("file not generated");
+			e.printStackTrace();
+		} catch (IOException e) {
+			fail("Hash not generated");
+			e.printStackTrace();
+		}
+	
+	}
+	
+	@Test
+	public void test1000G_High_chip_mix_haplocheck_server() {
+		
+		String path="data/validatebamid//";
+		String inputLevels = path+"High_Chip_Mix_cnv_server.txt";
+		String outputHsd = inputLevels.split("\\.")[0]+".hsd";
+		String outputHaploGrep = inputLevels.split("\\.")[0]+".haplogrep.txt";
+		String output = inputLevels.split("\\.")[0]+"contaminated.txt";
+
+		HashMap<String, Double> verifyBamIDScoresFree = new HashMap<String, Double>();
+		HashMap<String, Double> verifyBamIDScoresChip = new HashMap<String, Double>();
+		
+		ITableReader readTableLevels = TableReaderFactory.getReader("data/1000G/VerifyBamId_cont_max.txt");
+		try {
+			while (readTableLevels.next()) {
+				String SampleID = readTableLevels.getString("ID");
+				double free_contam = readTableLevels.getDouble("free_contam");
+				double chip_contam = readTableLevels.getDouble("chip_contam");
+				verifyBamIDScoresFree.put(SampleID, free_contam);
+				verifyBamIDScoresChip.put(SampleID, chip_contam);
+			}
+		}
+			catch (Exception e) {
+				// TODO: handle exception
+			}
+		
+	
+		String[] args = new String[] {inputLevels, outputHsd};
+		HeteroplasmySplitter splitter = new HeteroplasmySplitter(args);
+		try {
+			splitter.build(inputLevels, outputHsd, 0.01); //TEST WITH VAF 1% VAF
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		String[] testArgs ={"-format", "hsd", "-in", outputHsd,"-out",outputHaploGrep, "-phylotree","17"};
+		String strArgs ="--format hsd --in "+ outputHsd + "--out "+ outputHaploGrep+ "--phylotree 17";
+		
+		HaploGrepCMD hg = new HaploGrepCMD(testArgs);
+		hg.setArgs(testArgs);
+		hg.run();
+		
+		args = new String[] {outputHaploGrep, inputLevels, output};
+
+		ContaminatonChecker contChecker = new ContaminatonChecker(args);
+		try {
+			contChecker.build(outputHaploGrep, inputLevels, output, verifyBamIDScoresFree);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		FileInputStream fis;
+		try {
+			fis = new FileInputStream(new File(output));
+			String md5 = org.apache.commons.codec.digest.DigestUtils.md5Hex(fis);
+			fis.close();
+			assertEquals("ab128f17d5f4a0db97abd2c2a35196e9", md5);
+			} catch (FileNotFoundException e) {
+			fail("file not generated");
+			e.printStackTrace();
+		} catch (IOException e) {
+			fail("Hash not generated");
+			e.printStackTrace();
+		}
+	
+	}
+	
+	
+	
+	
+	@Test
+	public void test1000G_High_free_Lofreq() {
+		
+		String path="data/validatebamid//";
+		String inputLevels = path+"High_Free_Mix_Lofreq.txt";
+		String outputHsd = inputLevels.split("\\.")[0]+".hsd";
+		String outputHaploGrep = inputLevels.split("\\.")[0]+".haplogrep.txt";
+		String output = inputLevels.split("\\.")[0]+"contaminated.txt";
+
+		HashMap<String, Double> verifyBamIDScoresFree = new HashMap<String, Double>();
+		HashMap<String, Double> verifyBamIDScoresChip = new HashMap<String, Double>();
+		
+		ITableReader readTableLevels = TableReaderFactory.getReader("data/1000G/VerifyBamId_cont_max.txt");
+		try {
+			while (readTableLevels.next()) {
+				String SampleID = readTableLevels.getString("ID");
+				double free_contam = readTableLevels.getDouble("free_contam");
+				double chip_contam = readTableLevels.getDouble("chip_contam");
+				verifyBamIDScoresFree.put(SampleID, free_contam);
+				verifyBamIDScoresChip.put(SampleID, chip_contam);
+			}
+		}
+			catch (Exception e) {
+				// TODO: handle exception
+			}
+		
+	
+		String[] args = new String[] {inputLevels, outputHsd};
+		HeteroplasmySplitter splitter = new HeteroplasmySplitter(args);
+		try {
+			splitter.build(inputLevels, outputHsd, 0.01); //TEST WITH VAF 1% VAF
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		String[] testArgs ={"-format", "hsd", "-in", outputHsd,"-out",outputHaploGrep, "-phylotree","17"};
+		String strArgs ="--format hsd --in "+ outputHsd + "--out "+ outputHaploGrep+ "--phylotree 17";
+		
+		HaploGrepCMD hg = new HaploGrepCMD(testArgs);
+		hg.setArgs(testArgs);
+		hg.run();
+		
+		args = new String[] {outputHaploGrep, inputLevels, output};
+
+		ContaminatonChecker contChecker = new ContaminatonChecker(args);
+		try {
+			contChecker.build(outputHaploGrep, inputLevels, output, verifyBamIDScoresFree);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		FileInputStream fis;
+		try {
+			fis = new FileInputStream(new File(output));
+			String md5 = org.apache.commons.codec.digest.DigestUtils.md5Hex(fis);
+			fis.close();
+			assertEquals("ab128f17d5f4a0db97abd2c2a35196e9", md5);
+			} catch (FileNotFoundException e) {
+			fail("file not generated");
+			e.printStackTrace();
+		} catch (IOException e) {
+			fail("Hash not generated");
+			e.printStackTrace();
+		}
+	
+	}
+	
+	
+	@Test
+	public void test1000GP3_0_5() {
+		
+	
+		String path="data/1000G/";
+		String inputLevels = path+"1000GP3_mtDNA_server_0_5_noBAQ.txt";
+		String outputHsd = inputLevels.split("\\.")[0]+".hsd";
+		String outputHaploGrep = inputLevels.split("\\.")[0]+".haplogrep.txt";
+		String output = inputLevels.split("\\.")[0]+".contaminated.txt";
+
+		
+		HashMap<String, Double> verifyBamIDScoresFree = new HashMap<String, Double>();
+		HashMap<String, Double> verifyBamIDScoresChip = new HashMap<String, Double>();
+		
+		ITableReader readTableLevels = TableReaderFactory.getReader("data/1000G/VerifyBamId_cont_max.txt");
+		try {
+			while (readTableLevels.next()) {
+				String SampleID = readTableLevels.getString("ID");
+				double free_contam = readTableLevels.getDouble("free_contam");
+				double chip_contam = readTableLevels.getDouble("chip_contam");
+				verifyBamIDScoresFree.put(SampleID, free_contam);
+				verifyBamIDScoresChip.put(SampleID, chip_contam);
+			}
+		}
+			catch (Exception e) {
+				// TODO: handle exception
+			}
+	
+		String[] args = new String[] {inputLevels, outputHsd};
+		HeteroplasmySplitter splitter = new HeteroplasmySplitter(args);
+		try {
+			splitter.build(inputLevels, outputHsd, 0.01); //TEST WITH VAF 1% VAF
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		String[] testArgs ={"-format", "hsd", "-in", outputHsd,"-out",outputHaploGrep, "-phylotree","17"};
+		String strArgs ="--format hsd --in "+ outputHsd + "--out "+ outputHaploGrep+ "--phylotree 17";
+		
+		HaploGrepCMD hg = new HaploGrepCMD(testArgs);
+		hg.setArgs(testArgs);
+		hg.run();
+		
+		args = new String[] {outputHaploGrep, inputLevels, output};
+
+		ContaminatonChecker contChecker = new ContaminatonChecker(args);
+		try {
+			contChecker.build(outputHaploGrep, inputLevels, output, verifyBamIDScoresFree);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		FileInputStream fis;
+		try {
+			fis = new FileInputStream(new File(output));
+			String md5 = org.apache.commons.codec.digest.DigestUtils.md5Hex(fis);
+			fis.close();
+			assertEquals("ab128f17d5f4a0db97abd2c2a35196e9", md5);
+			} catch (FileNotFoundException e) {
+			fail("file not generated");
+			e.printStackTrace();
+		} catch (IOException e) {
+			fail("Hash not generated");
+			e.printStackTrace();
+		}
+	
+	}
+	
+	
+	
+	
+	
+	@Test
+	public void test1000GP3_H() {
+		
+	
+		String path="data/1000G/";
+		String inputLevels = path+"1000Gp3.txt";
+		String outputHsd = inputLevels.split("\\.")[0]+".hsd";
+		String outputHaploGrep = inputLevels.split("\\.")[0]+".haplogrep.txt";
+		String output = inputLevels.split("\\.")[0]+"contaminated.txt";
+
+		
+		HashMap<String, Double> verifyBamIDScoresFree = new HashMap<String, Double>();
+		HashMap<String, Double> verifyBamIDScoresChip = new HashMap<String, Double>();
+		
+		ITableReader readTableLevels = TableReaderFactory.getReader("data/1000G/VerifyBamId_cont_max.txt");
+		try {
+			while (readTableLevels.next()) {
+				String SampleID = readTableLevels.getString("ID");
+				double free_contam = readTableLevels.getDouble("free_contam");
+				double chip_contam = readTableLevels.getDouble("chip_contam");
+				verifyBamIDScoresFree.put(SampleID, free_contam);
+				verifyBamIDScoresChip.put(SampleID, chip_contam);
+			}
+		}
+			catch (Exception e) {
+				// TODO: handle exception
+			}
+	
+		String[] args = new String[] {inputLevels, outputHsd};
+		HeteroplasmySplitter splitter = new HeteroplasmySplitter(args);
+		try {
+			splitter.build(inputLevels, outputHsd, 0.01); //TEST WITH VAF 1% VAF
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		String[] testArgs ={"-format", "hsd", "-in", outputHsd,"-out",outputHaploGrep, "-phylotree","17"};
+		String strArgs ="--format hsd --in "+ outputHsd + "--out "+ outputHaploGrep+ "--phylotree 17";
+		
+		HaploGrepCMD hg = new HaploGrepCMD(testArgs);
+		hg.setArgs(testArgs);
+		hg.run();
+		
+		args = new String[] {outputHaploGrep, inputLevels, output};
+
+		ContaminatonChecker contChecker = new ContaminatonChecker(args);
+		try {
+			contChecker.build(outputHaploGrep, inputLevels, output, verifyBamIDScoresFree);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		FileInputStream fis;
+		try {
+			fis = new FileInputStream(new File(output));
+			String md5 = org.apache.commons.codec.digest.DigestUtils.md5Hex(fis);
+			fis.close();
+			assertEquals("ab128f17d5f4a0db97abd2c2a35196e9", md5);
+			} catch (FileNotFoundException e) {
+			fail("file not generated");
+			e.printStackTrace();
+		} catch (IOException e) {
+			fail("Hash not generated");
+			e.printStackTrace();
+		}
+	
+	}
+	
+	
+	@Test
+	public void test1000_HG00s() {
+		
+	
+		String path="data/1000G/";
+		String inputLevels = path+"HG00119_HG00739_HG00740.txt";
+		String outputHsd = inputLevels.split("\\.")[0]+".hsd";
+		String outputHaploGrep = inputLevels.split("\\.")[0]+".haplogrep.txt";
+		String output = inputLevels.split("\\.")[0]+"contaminated.txt";
+
+
+	
+		String[] args = new String[] {inputLevels, outputHsd};
+		HeteroplasmySplitter splitter = new HeteroplasmySplitter(args);
+		try {
+			splitter.build(inputLevels, outputHsd, 0.01); //TEST WITH VAF 1% VAF
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		String[] testArgs ={"-format", "hsd", "-in", outputHsd,"-out",outputHaploGrep, "-phylotree","17"};
+		String strArgs ="--format hsd --in "+ outputHsd + "--out "+ outputHaploGrep+ "--phylotree 17";
+		
+		HaploGrepCMD hg = new HaploGrepCMD(testArgs);
+		hg.setArgs(testArgs);
+		hg.run();
+		
+		args = new String[] {outputHaploGrep, inputLevels, output};
+		long time = System.currentTimeMillis();
+		ContaminatonChecker contChecker = new ContaminatonChecker(args);
+		try {
+			contChecker.build(outputHaploGrep, inputLevels, output, null);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+System.out.println("Run time: " +(System.currentTimeMillis() -time) );
 		FileInputStream fis;
 		try {
 			fis = new FileInputStream(new File(output));
@@ -78,7 +631,7 @@ public class TestContChecker {
 		String outputHaploGrep = "data/HG00740/HG00740_haplogrep.txt";
 		String output = "data/HG00740/HG00740_contaminated.txt";
 
-	
+			
 		String[] args = new String[] {inputLevels, outputHsd};
 		HeteroplasmySplitter splitter = new HeteroplasmySplitter(args);
 		try {
@@ -99,7 +652,7 @@ public class TestContChecker {
 
 		ContaminatonChecker contChecker = new ContaminatonChecker(args);
 		try {
-			contChecker.build(outputHaploGrep, inputLevels, output);
+			contChecker.build(outputHaploGrep, inputLevels, output, null);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -151,7 +704,134 @@ public class TestContChecker {
 
 		ContaminatonChecker contChecker = new ContaminatonChecker(args);
 		try {
-			contChecker.build(outputHaploGrep, inputLevels, output);
+			contChecker.build(outputHaploGrep, inputLevels, output, null);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		FileInputStream fis;
+		try {
+			fis = new FileInputStream(new File(output));
+			String md5 = org.apache.commons.codec.digest.DigestUtils.md5Hex(fis);
+			fis.close();
+
+			assertEquals("00975ba72190371262d96a9a59516bf1", md5);
+			} catch (FileNotFoundException e) {
+			fail("file not generated");
+			e.printStackTrace();
+		} catch (IOException e) {
+			fail("Hash not generated");
+			e.printStackTrace();
+		}
+	
+	}
+	
+	
+	@Test
+	public void testVerifyBamID_greenVC0_1_8() {
+		System.out.println("VerifyBamIDs greenVC");
+		
+		String path="data/validatebamid/";
+		String inputLevels = path+"1000G_greenVC.txt";
+		String outputHsd = inputLevels.split("\\.")[0]+".hsd";
+		String outputHaploGrep = inputLevels.split("\\.")[0]+".haplogrep.txt";
+		String output = inputLevels.split("\\.")[0]+"contamintated.txt";
+
+		HashMap<String, Double> verifyBamIDScoresFree = new HashMap<String, Double>();
+		HashMap<String, Double> verifyBamIDScoresChip = new HashMap<String, Double>();
+		
+		ITableReader readTableLevels = TableReaderFactory.getReader("data/1000G/VerifyBamId_cont.txt");
+		try {
+			while (readTableLevels.next()) {
+				String SampleID = readTableLevels.getString("ID");
+				//double free_contam = readTableLevels.getDouble("free_contam");
+				double chip_contam = readTableLevels.getDouble("contam");
+				//verifyBamIDScoresFree.put(SampleID, free_contam);
+				verifyBamIDScoresChip.put(SampleID, chip_contam);
+			}
+		}
+			catch (Exception e) {
+				// TODO: handle exception
+			}
+		
+	
+		String[] args = new String[] {inputLevels, outputHsd};
+		HeteroplasmySplitter splitter = new HeteroplasmySplitter(args);
+		try {
+			splitter.build(inputLevels, outputHsd, 0.01); //TEST WITH VAF 1% VAF
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		String[] testArgs ={"-format", "hsd", "-in", outputHsd,"-out",outputHaploGrep, "-phylotree","17"};
+		String strArgs ="--format hsd --in "+ outputHsd + "--out "+ outputHaploGrep+ "--phylotree 17";
+		
+		HaploGrepCMD hg = new HaploGrepCMD(testArgs);
+		hg.setArgs(testArgs);
+		hg.run();
+		
+		args = new String[] {outputHaploGrep, inputLevels, output};
+
+		ContaminatonChecker contChecker = new ContaminatonChecker(args);
+		try {
+			contChecker.build(outputHaploGrep, inputLevels, output, verifyBamIDScoresChip);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		FileInputStream fis;
+		try {
+			fis = new FileInputStream(new File(output));
+			String md5 = org.apache.commons.codec.digest.DigestUtils.md5Hex(fis);
+			fis.close();
+
+			assertEquals("00975ba72190371262d96a9a59516bf1", md5);
+			} catch (FileNotFoundException e) {
+			fail("file not generated");
+			e.printStackTrace();
+		} catch (IOException e) {
+			fail("Hash not generated");
+			e.printStackTrace();
+		}
+	
+	}
+	
+	
+	@Test
+	public void testVerifyBamID_mtDNA_server0_9() {
+		System.out.println("VerifyBamIDs mtdna_server");
+		
+		String path="data/validatebamid/";
+		String inputLevels = path+"1000G_mtDNA-Server0_9.txt";
+		String outputHsd = inputLevels.split("\\.")[0]+".hsd";
+		String outputHaploGrep = inputLevels.split("\\.")[0]+".haplogrep.txt";
+		String output = inputLevels.split("\\.")[0]+"contamintated.txt";
+
+	
+		String[] args = new String[] {inputLevels, outputHsd};
+		HeteroplasmySplitter splitter = new HeteroplasmySplitter(args);
+		try {
+			splitter.build(inputLevels, outputHsd, 0.01); //TEST WITH VAF 1% VAF
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		String[] testArgs ={"-format", "hsd", "-in", outputHsd,"-out",outputHaploGrep, "-phylotree","17"};
+		String strArgs ="--format hsd --in "+ outputHsd + "--out "+ outputHaploGrep+ "--phylotree 17";
+		
+		HaploGrepCMD hg = new HaploGrepCMD(testArgs);
+		hg.setArgs(testArgs);
+		hg.run();
+		
+		args = new String[] {outputHaploGrep, inputLevels, output};
+
+		ContaminatonChecker contChecker = new ContaminatonChecker(args);
+		try {
+			contChecker.build(outputHaploGrep, inputLevels, output, null);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -204,7 +884,7 @@ public class TestContChecker {
 
 		ContaminatonChecker contChecker = new ContaminatonChecker(args);
 		try {
-			contChecker.build(outputHaploGrep, inputLevels, output);
+			contChecker.build(outputHaploGrep, inputLevels, output, null);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();

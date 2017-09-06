@@ -99,7 +99,7 @@ public class LoFreqReader extends Tool {
 				
 		        //genepi.mitolib.splitter.HeteroplasmySplitter.generateHSDfile(hm, outfile, vaf);
 			
-				System.out.println("File written - you can now open the result file in HaploGrep2");
+				System.out.println("File written");
 			} catch (Exception e) {
 				System.out.println("ERROR");
 				e.printStackTrace();
