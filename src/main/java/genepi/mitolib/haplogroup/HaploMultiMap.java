@@ -32,10 +32,13 @@ public class HaploMultiMap {
 		readPhylotree(phylotreemultimap);
 	}
 
-	public int getHaplogroup(String filename) {
+	public int getHaplogroup(String filename, String outfile) {
 		Long time = System.currentTimeMillis();
+		
 
 		try {
+			FileWriter fw = new FileWriter(new File(outfile));
+			fw.write(HeaderNames.SampleId.colname() + "\tHaplogroup\tSNPsfound\tFoundinHaplogroups\n");
 			BufferedReader br = new BufferedReader(new FileReader(filename));
 
 			String lineReader = br.readLine();
@@ -54,8 +57,6 @@ public class HaploMultiMap {
 					String snp = strsplit[i];
 					snpq.addAll(myMultimap.get(snp));
 				}
-
-
 				
 				// generate a map with key = haplogroup and value size of query
 				// SNPs found
@@ -110,17 +111,19 @@ public class HaploMultiMap {
 						result = HG;
 					}
 				}
-					System.out.println(ID + "\t" + result + "\t" + maxEntry.getValue() + "\t" + mapq.size());
+					fw.write(ID + "\t" + result + "\t" + maxEntry.getValue() + "\t" + mapq.size()+"\n");
+					//System.out.println(ID + "\t" + result + "\t" + maxEntry.getValue() + "\t" + mapq.size());
 				}
 				else
 				{
-					System.out.println(ID + "\t" + "rCRS" + "\t" + 0 + "\t" + mapq.size());
+					fw.write(ID + "\t" + "rCRS" + "\t" + 0 + "\t" + mapq.size()+"\n");
+					//System.out.println(ID + "\t" + "rCRS" + "\t" + 0 + "\t" + mapq.size());
 				}
 				
 				lineReader = br.readLine();
 			} // end while loop file entries
 			br.close();
-
+			fw.close();
 			Long time6 = System.currentTimeMillis();
 
 			System.out.println("time " + (time6 - time) + " ms");
@@ -200,12 +203,13 @@ public class HaploMultiMap {
 		
 		HaploMultiMap hm = new HaploMultiMap();
 		hm.initMultiMaps();
+		hm.getHaplogroup("data/1000G/1000Gp3.hsd", "data/1000G/1000Gp3_hmm.txt");
 		//hm.getHaplogroup("data/LG1_10_3000/LG1_10_3000.hsd");
 		//hm.getHaplogroup("data/HG00740/HG00740.hsd");
 		//hm.getHaplogroup("data/sim_H/sim_H2a2a1g.hsd");
 		//hm.getHaplogroup("data/sim_H/sim_H.hsd");
 	//	hm.getHaplogroup("data/1000G/1000G_P1.hsd");
-		hm.getHaplogroup("/media/hansi/SYSTEM/Documents and Settings/q016hw/Desktop/Projects/extern/oliveira/Imputation/phylotree17_genotypes_Vanessa.hsd");
+	//	hm.getHaplogroup("/media/hansi/SYSTEM/Documents and Settings/q016hw/Desktop/Projects/extern/oliveira/Imputation/phylotree17_genotypes_Vanessa.hsd");
 	//	hm.getHaplogroup("data/1000G/1000G_P3.hsd");
 	//	hm.getHaplogroup("data/LG1_10_3000/S4.hsd");
 	}

@@ -178,7 +178,7 @@ public class ContaminatonChecker  extends Tool {
 						//check if one of the haplogroups is defined by at least 2 heteroplasmic variants and haplogroup with different snps found
 						if ((majMutfound - countHomoplMajor[0]) > 2 ||  (minMutfound - countHomoplMinor[0]) >2  && (countHomoplMajor[1]== countHomoplMinor[1])){
 							countContaminated++;
-							fw.write(centry.getSampleId() + "\tCont.1.High\t" + centry.getMajorId() + "\t"
+							fw.write(centry.getSampleId() + "\tCont.High\t" + centry.getMajorId() + "\t"
 									+ formatter.format(meanMajor) + "\t" + homoplMajor + "\t"
 									+ (majMutfound - countHomoplMajor[0]) + "\t" + centry.getMinorId() + "\t"
 									+ formatter.format(meanMinor) + "\t" + homoplMinor + "\t"
@@ -188,12 +188,13 @@ public class ContaminatonChecker  extends Tool {
 																				// notfound.replaceAll("
 																				// ",
 																				// "").length()>1){
-							fw.write(centry.getSampleId() + "\tCont.2.Med\t" + centry.getMajorId() + "\t"									+ formatter.format(meanMajor) + "\t" + homoplMajor + "\t"
+							fw.write(centry.getSampleId() + "\tCont.Unlikely\t" + centry.getMajorId() + "\t"	
+									+ formatter.format(meanMajor) + "\t" + homoplMajor + "\t"
 									+ (majMutfound - countHomoplMajor[0]) + "\t" + centry.getMinorId() + "\t"
 									+ formatter.format(meanMinor) + "\t" + homoplMinor + "\t"
 									+ (minMutfound - countHomoplMinor[0]) +"\t"+verifyScore + "\t"+meanCov+ "\n");
 						} else {
-							fw.write(centry.getSampleId() + "\tCont.3.Low\t" + centry.getMajorId() + "\t"
+							fw.write(centry.getSampleId() + "\tCont.Poss\t" + centry.getMajorId() + "\t"
 									+ formatter.format(meanMajor) + "\t" + homoplMajor + "\t"
 									+ (majMutfound - countHomoplMajor[0]) + "\t" + centry.getMinorId() + "\t"
 									+ formatter.format(meanMinor) + "\t" + homoplMinor + "\t"
@@ -204,7 +205,7 @@ public class ContaminatonChecker  extends Tool {
 
 					else if (meanCov<200){
 						countCovLow++;
-						fw.write(centry.getSampleId() + "\tLowCov\t" + centry.getMajorId() + "\t"
+						fw.write(centry.getSampleId() + "\tCov2Low\t" + centry.getMajorId() + "\t"
 								+ formatter.format(meanMajor) + "\t" + homoplMajor + "\t"
 								+ (majMutfound - countHomoplMajor[0]) + "\t" + centry.getMinorId() + "\t"
 								+ formatter.format(meanMinor) + "\t" + homoplMinor + "\t"
@@ -336,7 +337,62 @@ public class ContaminatonChecker  extends Tool {
 		
 	
 	public static void main(String[] args) {
-		new ContaminatonChecker(args).start();
+		ContaminatonChecker cc =new ContaminatonChecker(args);
+		String path="data/1000G/1000G_txt/";
+		String inVar = path+"all.txt";
+		String inHG2 = inVar.split("\\.")[0]+".hsd";
+		String outHG2 = inVar.split("\\.")[0]+".haplogrep.txt";
+		String output = inVar.split("\\.")[0]+"contaminated.txt";
+		double threshold =0.007;
+		
+		HashMap<String, Double> verifyBamIDScoresFree = new HashMap<String, Double>();
+		HashMap<String, Double> verifyBamIDScoresChip = new HashMap<String, Double>();
+		
+		ITableReader readTableLevels = TableReaderFactory.getReader("data/1000G/VerifyBamId_cont_max.txt");
+		try {
+			while (readTableLevels.next()) {
+				String SampleID = readTableLevels.getString("ID");
+				double free_contam = readTableLevels.getDouble("free_contam");
+				double chip_contam = readTableLevels.getDouble("chip_contam");
+				verifyBamIDScoresFree.put(SampleID, free_contam);
+				verifyBamIDScoresChip.put(SampleID, chip_contam);
+			}
+		}
+			catch (Exception e) {
+				// TODO: handle exception
+			}
+
+
+		try {
+			cc.build(outHG2, inVar, output, threshold, verifyBamIDScoresFree);
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
+	
+		 path="data/1000G/";
+		 inVar = path+"1000Gp3.txt";
+		 inHG2 = inVar.split("\\.")[0]+".hsd";
+		 outHG2 = inVar.split("\\.")[0]+".haplogrep.txt";
+		 output = inVar.split("\\.")[0]+"contaminated.txt";
+		 threshold =0.01;
+		
+
+		try {
+			cc.build(outHG2, inVar, output, threshold, verifyBamIDScoresFree);
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
+	
 	}
 
 }
