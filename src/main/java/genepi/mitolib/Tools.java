@@ -3,6 +3,7 @@ package genepi.mitolib;
 import java.lang.reflect.InvocationTargetException;
 
 import genepi.base.Toolbox;
+import genepi.mitolib.bam.BAMReader;
 import genepi.mitolib.contChecker.ContaminatonChecker;
 import genepi.mitolib.contChecker.HaploChecker;
 import genepi.mitolib.lofreq.LoFreqReader;
@@ -27,7 +28,7 @@ public class Tools extends Toolbox {
 			tools.addTool("splitter", HeteroplasmySplitter.class);
 			tools.addTool("contChecker", ContaminatonChecker.class);
 			tools.addTool("lofreq", LoFreqReader.class);
-			tools.addTool("bam2var",HaploChecker.class);
+			tools.addTool("bam2var",BAMReader.class);
 			tools.addTool("haplochecker",HaploChecker.class);
 			
 			try {
