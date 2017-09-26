@@ -24,6 +24,12 @@
 			</snapshots>
 		</repository>
 
+		<repository>
+			<id>in-project</id>
+			<name>In Project Repo</name>
+			<url>file://${basedir}/lib</url>
+		</repository>
+
 	</repositories>
 
 	<dependencies>
@@ -80,6 +86,12 @@
 		</dependency>
 
 
+		<dependency>
+		      <groupId>haplogrep</groupId>
+		      <artifactId>HaplogrepCMD</artifactId>
+		      <version>2.1.0</version>
+		   </dependency>
+		   
 		<dependency>
 			<groupId>genepi</groupId>
 			<artifactId>genepi-io</artifactId>
