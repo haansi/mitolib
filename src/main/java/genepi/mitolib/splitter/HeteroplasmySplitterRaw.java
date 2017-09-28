@@ -5,15 +5,10 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.Vector;
-import java.util.Map.Entry;
 
 import genepi.base.Tool;
 import genepi.io.table.TableReaderFactory;
@@ -23,36 +18,34 @@ import genepi.mitolib.objects.HSDEntry;
 import genepi.mitolib.objects.HeaderNames;
 
 
-public class HeteroplasmySplitter  extends Tool {
+public class HeteroplasmySplitterRaw  extends Tool {
 
-	public HeteroplasmySplitter(String[] args) {
+	public HeteroplasmySplitterRaw(String[] args) {
 		super(args);
 	}
-	
-	
 	@Override
 	public void init() {
 
 		System.out
-				.println("Split mitochondrial variants and heteroplasmies from mtDNA-Server (https://mtdna-server.uibk.ac.at) - in profiles for HaploGrep 2\n\n");
+				.println("Split mitochondrial raw file from mtDNA-Server (https://mtdna-server.uibk.ac.at) - in profiles for HaploGrep 2\n\n");
 
 	}
 
 	@Override
 	public void createParameters() {
 
-		addParameter("in", 	"input Variants+Heteroplasmy from mtDNA-Server");
-		addParameter("vaf", "variant allele frequence");
+		addParameter("in", 	"input raw file (pileup) from mtDNA-Server");
+		addParameter("vaf", "variant allele frequence ");
 		addParameter("out", "output file for HaploGrep 2");
 	}
-
-
+	
+	
 	@Override
 	public int run() {
 
 		String in = (String) getValue("in");
 		String out = (String) getValue("out");
-		double vaf = (double) (getValue("vaf"));
+		double vaf = 0.01;
 
 		try {
 			return build(in, out, vaf);
@@ -68,38 +61,76 @@ public class HeteroplasmySplitter  extends Tool {
 	}
 	
 	public int build(String variantfile, String outfile, double vaf) throws MalformedURLException, IOException {
-		
-			try {
-				
+		try {
+			
 			//	input = directoryListing[0].getAbsolutePath();
 				
 				ITableReader idReader = TableReaderFactory.getReader(variantfile);
 
 
 				HashMap<String, ArrayList<CheckEntry>> hm = new HashMap<String, ArrayList<CheckEntry>>();
-			
-				try {
-							while (idReader.next()) {
-								CheckEntry entry = new CheckEntry();
-								String id =  idReader.getString(HeaderNames.SampleId.colname()); //SampleID
-								entry.setID(id);
-								
-								entry.setPOS(idReader.getInteger(HeaderNames.Position.colname()));  //Pos
-								entry.setREF(idReader.getString(HeaderNames.Reference.colname()));	//Ref
-								entry.setALT(idReader.getString(HeaderNames.VariantBase.colname())); //ALT
-								entry.setVAF(idReader.getDouble(HeaderNames.VariantLevel.colname())); //VAF
-
-								if (hm.containsKey(id)) {
-									hm.get(id).add(entry);
-								} else if (hm.get(id) == null) {
-									hm.put(id, new ArrayList<CheckEntry>());
-									hm.get(id).add(entry);
-								}
-							}
-							idReader.close();
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
+	
+		try {
+			while (idReader.next()) {
+				CheckEntry entry = new CheckEntry();
+				String id =  idReader.getString("ID"); //SampleID
+				entry.setID(id);
+				
+				entry.setPOS(idReader.getInteger("POS"));  //Pos
+				entry.setREF(idReader.getString("rCRS"));	//Ref
+				
+				int covFWD= idReader.getInteger("COV-FWD");
+				int covREV= idReader.getInteger("COV-REV");
+				int A= (int) (idReader.getDouble("%A")*covFWD) +  (int)(idReader.getDouble("%a")*covREV);
+				int C= (int) (idReader.getDouble("%C")*covFWD) +  (int)(idReader.getDouble("%c")*covREV);
+				int G= (int) (idReader.getDouble("%G")*covFWD) +  (int)(idReader.getDouble("%g")*covREV);
+				int T= (int) (idReader.getDouble("%T")*covFWD) +  (int)(idReader.getDouble("%t")*covREV);
+				
+				TreeMap<Integer, String> map = new TreeMap<Integer, String>(Collections.reverseOrder());
+				
+				map.put(A, "A");
+				map.put(C, "C");
+				map.put(G, "G");
+				map.put(T, "T");
+		 
+				String firstBase = (String) map.values().toArray()[0]; 
+				double firstBasePerc=  Double.valueOf((map.keySet().toArray()[0])+"") / (covFWD+covREV); 
+				
+				String secondBase = (String) map.values().toArray()[1]; 
+				double secondBasePerc= Double.valueOf( map.keySet().toArray()[1] +"") / (covFWD+covREV); 
+				
+				boolean isVariant=false;
+				if (firstBase.equals(entry.getREF()))
+			    {
+			    	entry.setALT(secondBase);
+			    	entry.setVAF(secondBasePerc);
+			    	if (secondBasePerc >= vaf){
+			    		isVariant=true;
+			    	}
+			    		
+			    }
+			    else{
+			    	entry.setALT(firstBase);
+			    	entry.setVAF(1-firstBasePerc);
+			    	isVariant=true;
+			    }
+		
+				if (isVariant){
+				if (hm.containsKey(id)) {
+					hm.get(id).add(entry);
+				} else if (hm.get(id) == null) {
+					hm.put(id, new ArrayList<CheckEntry>());
+					hm.get(id).add(entry);
+				}
+			}
+			}
+			idReader.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}	
+		
+		
+		
 			int counter = generateHSDfile(hm, outfile, vaf);	
 			
 			System.out.println(counter +" samples processed\n" +counter*2 +" profiles written");
@@ -111,7 +142,7 @@ public class HeteroplasmySplitter  extends Tool {
 			}
 			return 0;
 		}
-	
+
 	public static int generateHSDfile(HashMap<String, ArrayList<CheckEntry>> hm, String outfile, double vaf) throws Exception{
 		FileWriter fw;
 		fw = new FileWriter(outfile);
