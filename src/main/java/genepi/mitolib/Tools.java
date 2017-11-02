@@ -8,6 +8,7 @@ import genepi.mitolib.contChecker.ContaminatonChecker;
 import genepi.mitolib.contChecker.HaploChecker;
 import genepi.mitolib.lofreq.LoFreqReader;
 import genepi.mitolib.splitter.HeteroplasmySplitter;
+import genepi.mitolib.splitter.HeteroplasmySplitterRaw;
 
 
 public class Tools extends Toolbox {
@@ -26,6 +27,7 @@ public class Tools extends Toolbox {
 	    	Tools tools = new Tools("java -jar mitolib.jar", args);
 			
 			tools.addTool("splitter", HeteroplasmySplitter.class);
+			tools.addTool("splitterRaw", HeteroplasmySplitterRaw.class);
 			tools.addTool("contChecker", ContaminatonChecker.class);
 			tools.addTool("lofreq", LoFreqReader.class);
 			tools.addTool("bam2var",BAMReader.class);
