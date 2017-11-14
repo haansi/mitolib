@@ -104,12 +104,13 @@ public class CNVServer2Haplogrep  extends Tool {
 				double firstBasePerc=  Double.valueOf((map.keySet().toArray()[0])+"") / (covFWD+covREV); 
 				
 				String secondBase = (String) map.values().toArray()[1]; 
+				int secondBaseCount= Integer.valueOf(map.keySet().toArray()[1]+"");
 				double secondBasePerc= Double.valueOf( map.keySet().toArray()[1] +"") / (covFWD+covREV); 
 				
 					boolean isVariant = false;
 					if (topFwd.equals(entry.getREF())) 
 					{
-						if (/*(minFwd.equals(minRev)) &&*/ (secondBasePerc >= vaf)) {
+						if (/*(minFwd.equals(minRev) && !(minRev.equals("-"))) &&*/ (secondBasePerc >= vaf) && secondBaseCount>3) {
 							entry.setALT(secondBase);
 							entry.setVAF(secondBasePerc);
 							isVariant = true;
