@@ -9,6 +9,13 @@ Current Tools:
 - lofreq - Split mitochondrial variants according the VCF file generated with <a href="http://csb5.github.io/lofreq/">LoFreq</a> as Variant file (txt)
 - bam2var - naive variant caller (input BAM file, output Variant file txt)
 - haplochecker - check for contamination in mtDNA NGS data (BAM file) based on <a href="http://phylotree.org/">Phylotree 17</a> 
+
+```bash
+java -jar mitolib-0.1.0.jar haplochecker --in Bamfile.bam --out outputfolder   --VAF 0.01 
+```
+
 - haplochecker2 - check for contamination in <a href="https://mtdna-server.uibk.ac.at/index.html">mtDNA-Server</a>  raw data  (large txt.file) based on <a href="http://phylotree.org/">Phylotree 17</a>   
 
-
+```bash
+java -jar mitolib-0.1.0.jar haplochecker2 --in raw.txt --out outputfolder --VAF 0.01 
+```
