@@ -11,6 +11,8 @@ public class CheckEntry {
 	 String REF;
 	 String ALT;
 	 double VAF;
+	 int COV;
+
 	
 	 public String getID() {
 		return ID;
@@ -43,7 +45,13 @@ public class CheckEntry {
 		this.VAF = vaf;
 	}
 
-	 
+	public int getCOV() {
+		return COV;
+	}
+	public void setCOV(int cOV) {
+		COV = cOV;
+	}
+
 
 	
 

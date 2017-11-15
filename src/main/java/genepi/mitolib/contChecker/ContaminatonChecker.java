@@ -11,6 +11,7 @@ import java.net.MalformedURLException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -78,6 +79,7 @@ public class ContaminatonChecker  extends Tool {
 		int countPossibleContaminated=0;
 		int countContaminated=0;
 		int countCovLow=0;
+		int countTooCovLow=0;
 		String ID="";
 		Vector vecov = new Vector<>();
 		
@@ -90,14 +92,26 @@ public class ContaminatonChecker  extends Tool {
 			HashMap<String, Double> heteroLevels = new HashMap<String, Double>();
 			HashMap<String, Integer> homoplasmies = new HashMap<String, Integer>();
 			HashMap<String, Integer> homoplasmiesMeta = new HashMap<String, Integer>();
+			boolean withCoverage=false;
+			
 			try {
 				while (readTableLevels.next()) {
+					String[] columns = (readTableLevels.getColumns());
+					if (Arrays.asList(columns).contains(HeaderNames.Coverage.colname())){
+						withCoverage=true;
+					}
 					double vaf = readTableLevels.getDouble(HeaderNames.VariantLevel.colname());
 					ID = readTableLevels.getString(HeaderNames.SampleId.colname());
 					String key = ID+"-"+readTableLevels.getString(HeaderNames.Position.colname())+readTableLevels.getString(HeaderNames.VariantBase.colname());
 					double value = readTableLevels.getDouble(HeaderNames.VariantLevel.colname());
-					int cov= readTableLevels.getInteger(HeaderNames.Coverage.colname());
-					vecov.add(cov);
+					
+					int cov=-1;
+
+					if (withCoverage){
+						cov= readTableLevels.getInteger(HeaderNames.Coverage.colname());
+						vecov.add(cov);
+					}
+					
 					if (vaf<1-threshold)
 					{
 						heteroLevels.put(key,value);
@@ -110,10 +124,12 @@ public class ContaminatonChecker  extends Tool {
 						
 						homoplasmies.put(key, 1);
 					}
+					if (withCoverage){
 					if (coverageMap.get(ID) == null) {
 						coverageMap.put(ID, new ArrayList<Integer>());
 					}
 					coverageMap.get(ID).add(cov);
+					}
 				}
 				readTableLevels.close();
 			}catch (Exception e) {
@@ -169,11 +185,16 @@ public class ContaminatonChecker  extends Tool {
 					
 					String homoplMajor = countHomoplMajor[0]+"/"+countHomoplMajor[1];
 					String homoplMinor = countHomoplMinor[0] +"/"+countHomoplMinor[1];
-				
+					
+					if (meanCov<200){
+						countCovLow++;
+					}
 					//check if Haplogroup names are different:
 					if (!centry.getMajorId().equals(centry.getMinorId())) {
 						contArray.add(centry);
 						countPossibleContaminated++;
+					
+						
 							
 						//check if one of the haplogroups is defined by at least 2 heteroplasmic variants and haplogroup with different snps found
 						if ((majMutfound - countHomoplMajor[0]) > 2 ||  (minMutfound - countHomoplMinor[0]) >2  && (countHomoplMajor[1]== countHomoplMinor[1])){
@@ -204,7 +225,7 @@ public class ContaminatonChecker  extends Tool {
 					}
 
 					else if (meanCov<200){
-						countCovLow++;
+						countTooCovLow++;
 						fw.write(centry.getSampleId() + "\tCov2Low\t" + centry.getMajorId() + "\t"
 								+ formatter.format(meanMajor) + "\t" + homoplMajor + "\t"
 								+ (majMutfound - countHomoplMajor[0]) + "\t" + centry.getMinorId() + "\t"
@@ -229,14 +250,12 @@ public class ContaminatonChecker  extends Tool {
 			System.out.println("");
 			System.out.println("---Verdict---");
 			System.out.println("Sample: " + ID);
-			System.out.println("Mean Variant Coverage:  " + getMean(vecov));
+			System.out.println("Mean Variant Coverage:  " + 0);//getMean(vecov));
 			System.out.println("Possibly contaminated: " + countPossibleContaminated + " of " + countEntries  );
 			System.out.println("High indication: " +countContaminated );
-			System.out.println("Coverage <200x: " + countCovLow  );
-			
+			System.out.println("Coverage <200x : " + countCovLow  );
 				
 			fw.close();
-
 		
 
 		} catch (Exception e) {

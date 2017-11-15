@@ -81,6 +81,7 @@ public class CNVServer2Haplogrep  extends Tool {
 				
 				int covFWD= idReader.getInteger("COV-FWD");
 				int covREV= idReader.getInteger("COV-REV");
+				entry.setCOV(covREV+covFWD);
 				
 				String topFwd=idReader.getString("TOP-FWD");
 				String topRev=idReader.getString("TOP-REV");
@@ -110,7 +111,7 @@ public class CNVServer2Haplogrep  extends Tool {
 					boolean isVariant = false;
 					if (topFwd.equals(entry.getREF())) 
 					{
-						if (/*(minFwd.equals(minRev) && !(minRev.equals("-"))) &&*/ (secondBasePerc >= vaf) && secondBaseCount>3) {
+						if ((minFwd.equals(minRev) && !(minRev.equals("-"))) && (secondBasePerc >= vaf) && secondBaseCount>3) {
 							entry.setALT(secondBase);
 							entry.setVAF(secondBasePerc);
 							isVariant = true;
@@ -157,12 +158,12 @@ public class CNVServer2Haplogrep  extends Tool {
 	public static int generateHSDfile(HashMap<String, ArrayList<CheckEntry>> hm, String outfile, double vaf) throws Exception{
 		FileWriter fw, fwVariant;
 		fw = new FileWriter(outfile);
-		fwVariant = new FileWriter(outfile+"_var");
+		fwVariant = new FileWriter(outfile+".txt");
 		
 		fw.write("SampleID\tRange\tHaplogroup\tPolymorphisms");
 		fw.write(System.lineSeparator());
 		
-		fwVariant.write("SampleID\tPos\tRef\tVariant\tVariant-Level");
+		fwVariant.write("SampleID\tPos\tRef\tVariant\tVariant-Level\tCoverage-Total");
 		fwVariant.write(System.lineSeparator());
 		
 		int counter =0;
@@ -187,15 +188,14 @@ public class CNVServer2Haplogrep  extends Tool {
 					// skip indel, and 3107 on rCRS;
 				} else {
 					if (helpArray.get(i).getVAF() < 0.5) {
-						fwVariant.write(pair.getKey() + "\t" + helpArray.get(i).getPOS() + "\t" + helpArray.get(i).getREF() +  "\t" + helpArray.get(i).getALT() +  "\t" + helpArray.get(i).getVAF() );
+						fwVariant.write(pair.getKey() + "\t" + helpArray.get(i).getPOS() + "\t" + helpArray.get(i).getREF() +  "\t" + helpArray.get(i).getALT() +  "\t" + helpArray.get(i).getVAF() +  "\t" + helpArray.get(i).getCOV() );
 						fwVariant.write(System.lineSeparator());
 						
 						minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getREF());
 						major.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getALT());
 						hetcounter++;
 					} else if (helpArray.get(i).getVAF() >= 0.5 && helpArray.get(i).getVAF() < 1-vaf){
-						fwVariant.write(pair.getKey() + "\t" + helpArray.get(i).getPOS() + "\t" + helpArray.get(i).getREF() +  "\t" + helpArray.get(i).getALT() +  "\t" + helpArray.get(i).getVAF());
-						
+						fwVariant.write(pair.getKey() + "\t" + helpArray.get(i).getPOS() + "\t" + helpArray.get(i).getREF() +  "\t" + helpArray.get(i).getALT() +  "\t" + helpArray.get(i).getVAF() +  "\t" + helpArray.get(i).getCOV());
 						fwVariant.write(System.lineSeparator());
 						
 						minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getALT());
@@ -203,7 +203,7 @@ public class CNVServer2Haplogrep  extends Tool {
 						hetcounter++;
 					}
 					else{
-						fwVariant.write(pair.getKey() + "\t" + helpArray.get(i).getPOS() + "\t" + helpArray.get(i).getREF() +  "\t" + helpArray.get(i).getALT() +  "\t"+ helpArray.get(i).getVAF());
+						fwVariant.write(pair.getKey() + "\t" + helpArray.get(i).getPOS() + "\t" + helpArray.get(i).getREF() +  "\t" + helpArray.get(i).getALT() +  "\t"+ helpArray.get(i).getVAF() +  "\t" + helpArray.get(i).getCOV());
 						fwVariant.write(System.lineSeparator());
 						minor.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getALT());
 						major.appendPROFILES(helpArray.get(i).getPOS() + helpArray.get(i).getALT());
