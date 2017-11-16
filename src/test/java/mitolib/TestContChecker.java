@@ -19,7 +19,7 @@ import genepi.mitolib.splitter.HeteroplasmySplitter;
 
 
 public class TestContChecker {
-
+	double vaf =0.01;
 	@Test
 	public void testSimulated_H() {
 		
@@ -27,7 +27,7 @@ public class TestContChecker {
 		String outputHsd = "data/sim_H/sim_H.hsd";
 		String outputHaploGrep = "data/sim_H/sim_H_haplogrep.txt";
 		String output = "data/sim_H/sim_H_contaminated.txt";
-
+		double vaf =0.01;
 	
 		String[] args = new String[] {inputLevels, outputHsd};
 		HeteroplasmySplitter splitter = new HeteroplasmySplitter(args);
@@ -49,7 +49,7 @@ public class TestContChecker {
 
 		ContaminatonChecker contChecker = new ContaminatonChecker(args);
 		try {
-			contChecker.build(outputHaploGrep, inputLevels, output, null);
+			contChecker.build(outputHaploGrep, inputLevels, output,vaf, null);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -79,7 +79,8 @@ public class TestContChecker {
 		String outputHsd = inputLevels.split("\\.")[0]+".hsd";
 		String outputHaploGrep = inputLevels.split("\\.")[0]+".haplogrep.txt";
 		String output = inputLevels.split("\\.")[0]+"contaminated.txt";
-
+		double vaf =0.01;
+		
 		HashMap<String, Double> verifyBamIDScoresFree = new HashMap<String, Double>();
 		HashMap<String, Double> verifyBamIDScoresChip = new HashMap<String, Double>();
 		
@@ -101,7 +102,7 @@ public class TestContChecker {
 		String[] args = new String[] {inputLevels, outputHsd};
 		HeteroplasmySplitter splitter = new HeteroplasmySplitter(args);
 		try {
-			splitter.build(inputLevels, outputHsd, 0.01); //TEST WITH VAF 1% VAF
+			splitter.build(inputLevels, outputHsd, vaf); //TEST WITH VAF 1% VAF
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -118,7 +119,7 @@ public class TestContChecker {
 
 		ContaminatonChecker contChecker = new ContaminatonChecker(args);
 		try {
-			contChecker.build(outputHaploGrep, inputLevels, output, verifyBamIDScoresFree);
+			contChecker.build(outputHaploGrep, inputLevels, output, vaf, verifyBamIDScoresFree);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -148,7 +149,8 @@ public class TestContChecker {
 		String outputHsd = inputLevels.split("\\.")[0]+".hsd";
 		String outputHaploGrep = inputLevels.split("\\.")[0]+".haplogrep.txt";
 		String output = inputLevels.split("\\.")[0]+"contaminated.txt";
-
+		double vaf =0.01;
+		
 		HashMap<String, Double> verifyBamIDScoresFree = new HashMap<String, Double>();
 		HashMap<String, Double> verifyBamIDScoresChip = new HashMap<String, Double>();
 		
@@ -187,7 +189,7 @@ public class TestContChecker {
 
 		ContaminatonChecker contChecker = new ContaminatonChecker(args);
 		try {
-			contChecker.build(outputHaploGrep, inputLevels, output, verifyBamIDScoresFree);
+			contChecker.build(outputHaploGrep, inputLevels, output, vaf, verifyBamIDScoresFree);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -219,6 +221,7 @@ public class TestContChecker {
 		String outputHsd = inputLevels.split("\\.")[0]+".hsd";
 		String outputHaploGrep = inputLevels.split("\\.")[0]+".haplogrep.txt";
 		String output = inputLevels.split("\\.")[0]+"contaminated.txt";
+		double vaf =0.01;
 
 		HashMap<String, Double> verifyBamIDScoresFree = new HashMap<String, Double>();
 		HashMap<String, Double> verifyBamIDScoresChip = new HashMap<String, Double>();
@@ -258,7 +261,7 @@ public class TestContChecker {
 
 		ContaminatonChecker contChecker = new ContaminatonChecker(args);
 		try {
-			contChecker.build(outputHaploGrep, inputLevels, output, verifyBamIDScoresFree);
+			contChecker.build(outputHaploGrep, inputLevels, output, vaf, verifyBamIDScoresFree);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -288,7 +291,8 @@ public class TestContChecker {
 		String outputHsd = inputLevels.split("\\.")[0]+".hsd";
 		String outputHaploGrep = inputLevels.split("\\.")[0]+".haplogrep.txt";
 		String output = inputLevels.split("\\.")[0]+"contaminated.txt";
-
+		double vaf =0.01;
+		
 		HashMap<String, Double> verifyBamIDScoresFree = new HashMap<String, Double>();
 		HashMap<String, Double> verifyBamIDScoresChip = new HashMap<String, Double>();
 		
@@ -327,7 +331,7 @@ public class TestContChecker {
 
 		ContaminatonChecker contChecker = new ContaminatonChecker(args);
 		try {
-			contChecker.build(outputHaploGrep, inputLevels, output, verifyBamIDScoresFree);
+			contChecker.build(outputHaploGrep, inputLevels, output, vaf, verifyBamIDScoresFree);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -360,7 +364,8 @@ public class TestContChecker {
 		String outputHsd = inputLevels.split("\\.")[0]+".hsd";
 		String outputHaploGrep = inputLevels.split("\\.")[0]+".haplogrep.txt";
 		String output = inputLevels.split("\\.")[0]+"contaminated.txt";
-
+		double vaf =0.01;
+		
 		HashMap<String, Double> verifyBamIDScoresFree = new HashMap<String, Double>();
 		HashMap<String, Double> verifyBamIDScoresChip = new HashMap<String, Double>();
 		
@@ -399,7 +404,7 @@ public class TestContChecker {
 
 		ContaminatonChecker contChecker = new ContaminatonChecker(args);
 		try {
-			contChecker.build(outputHaploGrep, inputLevels, output, verifyBamIDScoresFree);
+			contChecker.build(outputHaploGrep, inputLevels, output, vaf, verifyBamIDScoresFree);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -431,7 +436,7 @@ public class TestContChecker {
 		String outputHsd = inputLevels.split("\\.")[0]+".hsd";
 		String outputHaploGrep = inputLevels.split("\\.")[0]+".haplogrep.txt";
 		String output = inputLevels.split("\\.")[0]+".contaminated.txt";
-
+		double vaf =0.01;
 		
 		HashMap<String, Double> verifyBamIDScoresFree = new HashMap<String, Double>();
 		HashMap<String, Double> verifyBamIDScoresChip = new HashMap<String, Double>();
@@ -470,7 +475,7 @@ public class TestContChecker {
 
 		ContaminatonChecker contChecker = new ContaminatonChecker(args);
 		try {
-			contChecker.build(outputHaploGrep, inputLevels, output, verifyBamIDScoresFree);
+			contChecker.build(outputHaploGrep, inputLevels, output,vaf, verifyBamIDScoresFree);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -505,7 +510,7 @@ public class TestContChecker {
 		String outputHsd = inputLevels.split("\\.")[0]+".hsd";
 		String outputHaploGrep = inputLevels.split("\\.")[0]+".haplogrep.txt";
 		String output = inputLevels.split("\\.")[0]+"contaminated.txt";
-
+		double vaf =0.01;
 		
 		HashMap<String, Double> verifyBamIDScoresFree = new HashMap<String, Double>();
 		HashMap<String, Double> verifyBamIDScoresChip = new HashMap<String, Double>();
@@ -544,7 +549,79 @@ public class TestContChecker {
 
 		ContaminatonChecker contChecker = new ContaminatonChecker(args);
 		try {
-			contChecker.build(outputHaploGrep, inputLevels, output, verifyBamIDScoresFree);
+			contChecker.build(outputHaploGrep, inputLevels, output, vaf, verifyBamIDScoresFree);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		FileInputStream fis;
+		try {
+			fis = new FileInputStream(new File(output));
+			String md5 = org.apache.commons.codec.digest.DigestUtils.md5Hex(fis);
+			fis.close();
+			assertEquals("ab128f17d5f4a0db97abd2c2a35196e9", md5);
+			} catch (FileNotFoundException e) {
+			fail("file not generated");
+			e.printStackTrace();
+		} catch (IOException e) {
+			fail("Hash not generated");
+			e.printStackTrace();
+		}
+	
+	}
+	
+	
+	
+	@Test
+	public void test1000GP3_BAQ() {
+		
+	
+		String path="data/1000G/BAQ/";
+		String inputLevels = path+"variantsLocal.txt";
+		String outputHsd = inputLevels.split("\\.")[0]+".hsd";
+		String outputHaploGrep = inputLevels.split("\\.")[0]+".haplogrep.txt";
+		String output = inputLevels.split("\\.")[0]+".contaminated.txt";
+		double vaf =0.01;
+		
+		HashMap<String, Double> verifyBamIDScoresFree = new HashMap<String, Double>();
+		HashMap<String, Double> verifyBamIDScoresChip = new HashMap<String, Double>();
+		
+		ITableReader readTableLevels = TableReaderFactory.getReader("data/1000G/VerifyBamId_cont_max.txt");
+		try {
+			while (readTableLevels.next()) {
+				String SampleID = readTableLevels.getString("ID");
+				double free_contam = readTableLevels.getDouble("free_contam");
+				double chip_contam = readTableLevels.getDouble("chip_contam");
+				verifyBamIDScoresFree.put(SampleID, free_contam);
+				verifyBamIDScoresChip.put(SampleID, chip_contam);
+			}
+		}
+			catch (Exception e) {
+				// TODO: handle exception
+			}
+	
+		String[] args = new String[] {inputLevels, outputHsd};
+		HeteroplasmySplitter splitter = new HeteroplasmySplitter(args);
+		try {
+			splitter.build(inputLevels, outputHsd, 0.01); //TEST WITH VAF 1% VAF
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		String[] testArgs ={"-format", "hsd", "-in", outputHsd,"-out",outputHaploGrep, "-phylotree","17"};
+		String strArgs ="--format hsd --in "+ outputHsd + "--out "+ outputHaploGrep+ "--phylotree 17";
+		
+		HaploGrepCMD hg = new HaploGrepCMD(testArgs);
+		hg.setArgs(testArgs);
+		hg.run();
+		
+		args = new String[] {outputHaploGrep, inputLevels, output};
+
+		ContaminatonChecker contChecker = new ContaminatonChecker(args);
+		try {
+			contChecker.build(outputHaploGrep, inputLevels, output, vaf, verifyBamIDScoresFree);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -599,7 +676,7 @@ public class TestContChecker {
 		long time = System.currentTimeMillis();
 		ContaminatonChecker contChecker = new ContaminatonChecker(args);
 		try {
-			contChecker.build(outputHaploGrep, inputLevels, output, null);
+			contChecker.build(outputHaploGrep, inputLevels, output,vaf, null);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -652,7 +729,7 @@ System.out.println("Run time: " +(System.currentTimeMillis() -time) );
 
 		ContaminatonChecker contChecker = new ContaminatonChecker(args);
 		try {
-			contChecker.build(outputHaploGrep, inputLevels, output, null);
+			contChecker.build(outputHaploGrep, inputLevels, output, vaf, null);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -704,7 +781,7 @@ System.out.println("Run time: " +(System.currentTimeMillis() -time) );
 
 		ContaminatonChecker contChecker = new ContaminatonChecker(args);
 		try {
-			contChecker.build(outputHaploGrep, inputLevels, output, null);
+			contChecker.build(outputHaploGrep, inputLevels, output, vaf, null);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -737,7 +814,8 @@ System.out.println("Run time: " +(System.currentTimeMillis() -time) );
 		String outputHsd = inputLevels.split("\\.")[0]+".hsd";
 		String outputHaploGrep = inputLevels.split("\\.")[0]+".haplogrep.txt";
 		String output = inputLevels.split("\\.")[0]+"contamintated.txt";
-
+		double vaf =0.007; 
+		
 		HashMap<String, Double> verifyBamIDScoresFree = new HashMap<String, Double>();
 		HashMap<String, Double> verifyBamIDScoresChip = new HashMap<String, Double>();
 		
@@ -759,7 +837,7 @@ System.out.println("Run time: " +(System.currentTimeMillis() -time) );
 		String[] args = new String[] {inputLevels, outputHsd};
 		HeteroplasmySplitter splitter = new HeteroplasmySplitter(args);
 		try {
-			splitter.build(inputLevels, outputHsd, 0.01); //TEST WITH VAF 1% VAF
+			splitter.build(inputLevels, outputHsd, vaf); //TEST WITH VAF 1% VAF
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -776,7 +854,7 @@ System.out.println("Run time: " +(System.currentTimeMillis() -time) );
 
 		ContaminatonChecker contChecker = new ContaminatonChecker(args);
 		try {
-			contChecker.build(outputHaploGrep, inputLevels, output, verifyBamIDScoresChip);
+			contChecker.build(outputHaploGrep, inputLevels, output,vaf, verifyBamIDScoresChip);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -831,7 +909,7 @@ System.out.println("Run time: " +(System.currentTimeMillis() -time) );
 
 		ContaminatonChecker contChecker = new ContaminatonChecker(args);
 		try {
-			contChecker.build(outputHaploGrep, inputLevels, output, null);
+			contChecker.build(outputHaploGrep, inputLevels, output, vaf,null);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -884,7 +962,7 @@ System.out.println("Run time: " +(System.currentTimeMillis() -time) );
 
 		ContaminatonChecker contChecker = new ContaminatonChecker(args);
 		try {
-			contChecker.build(outputHaploGrep, inputLevels, output, null);
+			contChecker.build(outputHaploGrep, inputLevels, output, vaf,null);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
