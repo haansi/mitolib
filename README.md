@@ -11,7 +11,8 @@ Current Tools:
 - haplochecker - check for contamination in mtDNA NGS data (BAM file) based on <a href="http://phylotree.org/">Phylotree 17</a> 
 
 ```bash
-java -jar mitolib-0.1.0.jar haplochecker --in Bamfile.bam --out outputfolder --ref rCRS.fasta  --QUAL 20 --MAPQ 200 --VAF 0.01
+java -jar mitolib-0.1.0.jar haplochecker --in Bamfile.bam --out outputfolder --ref rCRS.fasta  --QUAL 20 
+--MAPQ 200 --VAF 0.01
 ```
 
 - haplochecker2 - check for contamination in <a href="https://mtdna-server.uibk.ac.at/index.html">mtDNA-Server</a>  raw data  (large txt.file) based on <a href="http://phylotree.org/">Phylotree 17</a>   
