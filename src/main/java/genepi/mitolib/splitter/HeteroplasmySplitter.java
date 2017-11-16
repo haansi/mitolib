@@ -88,7 +88,7 @@ public class HeteroplasmySplitter  extends Tool {
 								entry.setREF(idReader.getString(HeaderNames.Reference.colname()));	//Ref
 								entry.setALT(idReader.getString(HeaderNames.VariantBase.colname())); //ALT
 								entry.setVAF(idReader.getDouble(HeaderNames.VariantLevel.colname())); //VAF
-
+								entry.setCOV(idReader.getInteger(HeaderNames.Coverage.colname())); //COVERAGE
 								if (hm.containsKey(id)) {
 									hm.get(id).add(entry);
 								} else if (hm.get(id) == null) {
@@ -100,7 +100,7 @@ public class HeteroplasmySplitter  extends Tool {
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
-			int counter = generateHSDfile(hm, outfile, vaf);	
+			int counter = CNVServer2Haplogrep.generateHSDfile(hm, outfile, vaf);	
 			
 			System.out.println(counter +" samples processed\n" +counter*2 +" profiles written");
 

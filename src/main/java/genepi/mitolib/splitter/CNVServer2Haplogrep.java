@@ -111,7 +111,7 @@ public class CNVServer2Haplogrep  extends Tool {
 					boolean isVariant = false;
 					if (topFwd.equals(entry.getREF())) 
 					{
-						if ((minFwd.equals(minRev) && !(minRev.equals("-"))) && (secondBasePerc >= vaf) && secondBaseCount>3) {
+						if (/*(minFwd.equals(minRev) && !(minRev.equals("-"))) &&*/ (secondBasePerc >= vaf) && secondBaseCount>1) {
 							entry.setALT(secondBase);
 							entry.setVAF(secondBasePerc);
 							isVariant = true;
