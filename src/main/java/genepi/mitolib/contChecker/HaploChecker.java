@@ -48,8 +48,11 @@ public class HaploChecker  extends Tool {
 
 		addParameter("in", 	"input BAM file");
 		addParameter("ref", "reference FASTA file");
-		
 		addParameter("out", "output folder");
+		addParameter("VAF",	" set the Variant Allele Frequency (VAF), example [0.1] = 10%)", DOUBLE);
+		addParameter("QUAL"," set the per Base Quality, [0-40], considered [>=20 && <=35] ", INTEGER);
+		addParameter("MAPQ",": set the per Base Quality, [0-255], considered [200]", INTEGER);
+		
 	}
 
 	@Override
@@ -58,9 +61,12 @@ public class HaploChecker  extends Tool {
 		String inBam = (String) getValue("in");
 		String inRef = (String) getValue("ref");
 		String out = (String) getValue("out");
-	
+		double vaf = (Double) getValue("VAF");
+		int qual = (Integer) getValue("QUAL");
+		int mapq = (Integer) getValue("MAPQ");
+		
 		try {
-			return build(inBam, inRef, out);
+			return build(inBam, inRef, out, qual, mapq, vaf);
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 			return -1;
@@ -72,10 +78,10 @@ public class HaploChecker  extends Tool {
 	
 	
 	
-	public int build(String inBam, String ref, String out) throws MalformedURLException, IOException {
-		double vaf =0.01;
-		int mapqual =200;
-		int qual =20;
+	public int build(String inBam, String ref, String out, int quality, int mapquality, double varAlleFreq) throws MalformedURLException, IOException {
+		double vaf =varAlleFreq;
+		int mapqual =mapquality;
+		int qual =quality;
 		String[] emptyArgs=new String[]{""};
 		try {
 			double start = System.currentTimeMillis();
@@ -122,8 +128,11 @@ public class HaploChecker  extends Tool {
 		String inBam ="data/HG00740/HG00740.mapped.ILLUMINA.bwa.PUR.low_coverage.20120522.bam";
 		String out="data/output";
 		String ref ="data/rcrs.fasta";
+		int qual = 20;
+		int mapq =200;
+		double vaf =0.01;
 		try {
-			h.build(inBam, ref, out);
+			h.build(inBam, ref, out, qual, mapq, vaf);
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

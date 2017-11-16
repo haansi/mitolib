@@ -755,9 +755,6 @@ public class BAMReader extends Tool {
 		}
 		return result;
 	}
-
-	
-	
 	
 
 	public static void main(String[] args) {

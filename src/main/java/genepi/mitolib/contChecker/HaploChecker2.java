@@ -47,17 +47,17 @@ public class HaploChecker2  extends Tool {
 	@Override
 	public void createParameters() {
 		addParameter("in", 	"input txt file");
-		addParameter("vaf", "variant allele frequence");
 		addParameter("out", "output folder");
+		addParameter("VAF", "variant allele frequence", DOUBLE);
 	}
 
 	@Override
 	public int run() {
 
 		String input = (String) getValue("in");
-		double inVaf = (Double) getValue("vaf");
 		String out = (String) getValue("out");
-	
+		double inVaf = (Double) getValue("VAF");
+		
 		try {
 			return build(input, inVaf, out);
 		} catch (MalformedURLException e) {
@@ -77,6 +77,8 @@ public class HaploChecker2  extends Tool {
 			double start = System.currentTimeMillis();
 			
 			String filename= input.split(File.separator)[input.split(File.separator).length-1];
+			
+			createDirectory(out);
 			
 			CNVServer2Haplogrep splitter = new CNVServer2Haplogrep(emptyArgs);
 			
@@ -109,6 +111,12 @@ public class HaploChecker2  extends Tool {
 	}
 		
 	
+	private void createDirectory(String out) {
+		new File(out).mkdirs();
+		
+	}
+
+
 	public static void main(String[] args) {
 		HaploChecker2 h = new HaploChecker2(args);
 
