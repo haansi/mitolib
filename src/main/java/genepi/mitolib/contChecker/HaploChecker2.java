@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
+import org.apache.commons.io.FilenameUtils;
+
 import com.google.common.collect.Maps;
 
 import genepi.base.Tool;
@@ -77,6 +79,7 @@ public class HaploChecker2  extends Tool {
 			double start = System.currentTimeMillis();
 			
 			String filename= input.split(File.separator)[input.split(File.separator).length-1];
+			filename =  FilenameUtils.getBaseName(filename);
 			
 			createDirectory(out);
 			

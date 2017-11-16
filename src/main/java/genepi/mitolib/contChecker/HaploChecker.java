@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
+import org.apache.commons.io.FilenameUtils;
+
 import com.google.common.collect.Maps;
 
 import genepi.base.Tool;
@@ -93,6 +95,7 @@ public class HaploChecker  extends Tool {
 			
 			String[] tokens = inBam.split(File.separator);
 			String filenam = tokens[tokens.length-1];
+			filenam =  FilenameUtils.getBaseName(filenam);
 			
 			String infile = out+File.separator+filenam+".txt";
 			String fileHSD =out+File.separator+filenam+".hsd";
