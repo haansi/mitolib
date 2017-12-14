@@ -47,7 +47,7 @@ public class ContaminatonChecker  extends Tool {
 
 		addParameter("inHG2", 	"input HaploGrep2 extended file");
 		addParameter("inVar", 	"input variant file");
-		addParameter("vaf", "threshold to be applied 0.01 for 1%");
+		addParameter("vaf", "threshold to be applied 0.01 for 1%", DOUBLE);
 		addParameter("out", "output file of contaminated Samples");
 
 	}
@@ -194,7 +194,6 @@ public class ContaminatonChecker  extends Tool {
 						contArray.add(centry);
 						countPossibleContaminated++;
 					
-						
 							
 						//check if one of the haplogroups is defined by at least 2 heteroplasmic variants and haplogroup with different snps found
 						if ((majMutfound - countHomoplMajor[0]) > 2 ||  (minMutfound - countHomoplMinor[0]) >2  && (countHomoplMajor[1]== countHomoplMinor[1])){
@@ -249,7 +248,13 @@ public class ContaminatonChecker  extends Tool {
 			
 			System.out.println("");
 			System.out.println("---Verdict---");
-			System.out.println("Sample: " + ID);
+			if (countEntries==1)
+				{
+				System.out.println("Sample: " + ID);
+				}
+			else{
+				System.out.println("Samples: " + countEntries);
+				}
 			System.out.println("Mean Variant Coverage:  " + 0);//getMean(vecov));
 			System.out.println("Possibly contaminated: " + countPossibleContaminated + " of " + countEntries  );
 			System.out.println("High indication: " +countContaminated );

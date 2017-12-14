@@ -7,6 +7,7 @@ import genepi.mitolib.bam.BAMReader;
 import genepi.mitolib.contChecker.ContaminatonChecker;
 import genepi.mitolib.contChecker.HaploChecker;
 import genepi.mitolib.contChecker.HaploChecker2;
+import genepi.mitolib.contChecker.HaploChecker2Hsd;
 import genepi.mitolib.contChecker.HaploChecker3;
 import genepi.mitolib.lofreq.LoFreqReader;
 import genepi.mitolib.splitter.HeteroplasmySplitter;
@@ -35,6 +36,7 @@ public class Tools extends Toolbox {
 			tools.addTool("bam2var",BAMReader.class);
 			tools.addTool("haplochecker",HaploChecker.class);
 			tools.addTool("haplochecker2",HaploChecker2.class);
+			tools.addTool("haplochecker2hsd",HaploChecker2Hsd.class);
 			tools.addTool("haplochecker3",HaploChecker3.class);
 			try {
 				tools.start();
