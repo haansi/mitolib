@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Array;
 import java.net.MalformedURLException;
@@ -19,12 +20,16 @@ import java.util.Vector;
 import com.google.common.collect.Maps;
 
 import align.Sample;
+import core.Haplogroup;
 import genepi.base.Tool;
 import genepi.io.table.TableReaderFactory;
 import genepi.io.table.reader.CsvTableReader;
 import genepi.io.table.reader.ITableReader;
 import genepi.mitolib.objects.ContaminationEntry;
 import genepi.mitolib.objects.HeaderNames;
+import phylotree.Phylotree;
+import phylotree.PhylotreeManager;
+import server.main.HaplogrepCMD;
 
 
 public class ContaminatonChecker  extends Tool {
@@ -44,7 +49,6 @@ public class ContaminatonChecker  extends Tool {
 
 	@Override
 	public void createParameters() {
-
 		addParameter("inHG2", 	"input HaploGrep2 extended file");
 		addParameter("inVar", 	"input variant file");
 		addParameter("vaf", "threshold to be applied 0.01 for 1%", DOUBLE);
@@ -82,6 +86,7 @@ public class ContaminatonChecker  extends Tool {
 		int countTooCovLow=0;
 		String ID="";
 		Vector vecov = new Vector<>();
+		Phylotree phylotree = PhylotreeManager.getInstance().getPhylotree("phylotree17.xml","weights17.txt");
 		
 		try {
 
@@ -142,7 +147,7 @@ public class ContaminatonChecker  extends Tool {
 
 			ArrayList<ContaminationEntry> contArray = new  ArrayList<ContaminationEntry>();
 			FileWriter fw = new FileWriter(new File(outfile));
-			fw.write("SampleID\tContamination\tMinorHG\tMinorLevel\tMinorSNPs\tMinorHGvariants\tMajorHG\tMajorLevel\tMajorSNPs\tMajorHGvariants\tVerifyScore\tmeanCovVar");
+			fw.write("SampleID\tContamination\tMinorHG\tMinorLevel\tMinorSNPs\tMinorHGvariants\tMajorHG\tMajorLevel\tMajorSNPs\tMajorHGvariants\tVerifyScore\tmeanCovVar\tHGDistance");
 			fw.write(System.lineSeparator());
 		
 			try {
@@ -189,21 +194,38 @@ public class ContaminatonChecker  extends Tool {
 					if (meanCov<200){
 						countCovLow++;
 					}
+					
+					int distanceHG =0;
 					//check if Haplogroup names are different:
 					if (!centry.getMajorId().equals(centry.getMinorId())) {
 						contArray.add(centry);
-						countPossibleContaminated++;
+						
+								
+					Haplogroup haplogrMajor = new Haplogroup(centry.getMajorId());
+					Haplogroup haplogrMinor = new Haplogroup(centry.getMinorId());
 					
-							
-						//check if one of the haplogroups is defined by at least 2 heteroplasmic variants and haplogroup with different snps found
-						if ((majMutfound - countHomoplMajor[0]) > 2 ||  (minMutfound - countHomoplMinor[0]) >2  && (countHomoplMajor[1]== countHomoplMinor[1])){
+					
+					if (haplogrMajor.isSuperHaplogroup(phylotree, haplogrMinor))
+					{
+						distanceHG = haplogrMajor.distanceToSuperHaplogroup(phylotree, haplogrMinor);
+					}
+					else if (haplogrMinor.isSuperHaplogroup(phylotree, haplogrMajor))
+					{
+						distanceHG = haplogrMinor.distanceToSuperHaplogroup(phylotree, haplogrMajor);
+					}
+					else{
+						distanceHG = haplogrMajor.distanceToSuperHaplogroup(phylotree, haplogrMinor);
+					}
+					
+						//check if one of the haplogroups is defined by at least 2 heteroplasmic variants and haplogroup with different snps found (distance -1 not related HGs)
+						if (((majMutfound - countHomoplMajor[0]) > 2 ||  (minMutfound - countHomoplMinor[0]) >2 ) && (countHomoplMajor[1]== countHomoplMinor[1]) && (distanceHG > 1 || distanceHG == -1 )){
 							countContaminated++;
 							fw.write(centry.getSampleId() + "\tCont.High\t" + centry.getMajorId() + "\t"
 									+ formatter.format(meanMajor) + "\t" + homoplMajor + "\t"
 									+ (majMutfound - countHomoplMajor[0]) + "\t" + centry.getMinorId() + "\t"
 									+ formatter.format(meanMinor) + "\t" + homoplMinor + "\t"
-									+ (minMutfound - countHomoplMinor[0]) +"\t"+verifyScore + "\t"+meanCov+"\n");
-						} else if ((minMutfound - countHomoplMinor[0]) >1) {// (notfound.length()
+									+ (minMutfound - countHomoplMinor[0]) +"\t"+verifyScore + "\t"+meanCov+ "\t"  + distanceHG+"\n");
+						} else if ((minMutfound - countHomoplMinor[0]) >1)  {// (notfound.length()
 																				// -
 																				// notfound.replaceAll("
 																				// ",
@@ -212,16 +234,23 @@ public class ContaminatonChecker  extends Tool {
 									+ formatter.format(meanMajor) + "\t" + homoplMajor + "\t"
 									+ (majMutfound - countHomoplMajor[0]) + "\t" + centry.getMinorId() + "\t"
 									+ formatter.format(meanMinor) + "\t" + homoplMinor + "\t"
-									+ (minMutfound - countHomoplMinor[0]) +"\t"+verifyScore + "\t"+meanCov+ "\n");
-						} else {
+									+ (minMutfound - countHomoplMinor[0]) +"\t"+verifyScore + "\t"+meanCov+ "\t"+ distanceHG+"\n");
+						} else if (distanceHG > 1){
+							countPossibleContaminated++;
 							fw.write(centry.getSampleId() + "\tCont.Poss\t" + centry.getMajorId() + "\t"
 									+ formatter.format(meanMajor) + "\t" + homoplMajor + "\t"
 									+ (majMutfound - countHomoplMajor[0]) + "\t" + centry.getMinorId() + "\t"
 									+ formatter.format(meanMinor) + "\t" + homoplMinor + "\t"
-									+ (minMutfound - countHomoplMinor[0]) +"\t"+verifyScore + "\t"+meanCov+ "\n");
+									+ (minMutfound - countHomoplMinor[0]) +"\t"+verifyScore + "\t"+meanCov+ "\t"+ distanceHG+"\n");
+						} else{ //NONE
+							fw.write(centry.getSampleId() + "\tNone\t" + centry.getMajorId() + "\t"
+									+ formatter.format(meanMajor) + "\t" + homoplMajor + "\t"
+									+ (majMutfound - countHomoplMajor[0]) + "\t" + centry.getMinorId() + "\t"
+									+ formatter.format(meanMinor) + "\t" + homoplMinor + "\t"
+									+ (minMutfound - countHomoplMinor[0]) +"\t"+verifyScore +"\t"+meanCov+ "\t"+distanceHG+"\n");
 						}
 
-					}
+					} 
 
 					else if (meanCov<200){
 						countTooCovLow++;
@@ -229,14 +258,14 @@ public class ContaminatonChecker  extends Tool {
 								+ formatter.format(meanMajor) + "\t" + homoplMajor + "\t"
 								+ (majMutfound - countHomoplMajor[0]) + "\t" + centry.getMinorId() + "\t"
 								+ formatter.format(meanMinor) + "\t" + homoplMinor + "\t"
-								+ (minMutfound - countHomoplMinor[0]) +"\t"+verifyScore +"\t"+meanCov+ "\n");
+								+ (minMutfound - countHomoplMinor[0]) +"\t"+verifyScore +"\t"+meanCov+  "\t"+ distanceHG+"\n");
 					}
-					else{
+					else{  //NONE
 						fw.write(centry.getSampleId() + "\tNone\t" + centry.getMajorId() + "\t"
 								+ formatter.format(meanMajor) + "\t" + homoplMajor + "\t"
 								+ (majMutfound - countHomoplMajor[0]) + "\t" + centry.getMinorId() + "\t"
 								+ formatter.format(meanMinor) + "\t" + homoplMinor + "\t"
-								+ (minMutfound - countHomoplMinor[0]) +"\t"+verifyScore +"\t"+meanCov+ "\n");
+								+ (minMutfound - countHomoplMinor[0]) +"\t"+verifyScore +"\t"+meanCov+ "\t"+distanceHG+"\n");
 				
 					}
 				}
