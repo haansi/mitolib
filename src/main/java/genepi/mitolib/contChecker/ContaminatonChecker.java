@@ -147,7 +147,7 @@ public class ContaminatonChecker  extends Tool {
 
 			ArrayList<ContaminationEntry> contArray = new  ArrayList<ContaminationEntry>();
 			FileWriter fw = new FileWriter(new File(outfile));
-			fw.write("SampleID\tContamination\tMinorHG\tMinorLevel\tMinorSNPs\tMinorHGvariants\tMajorHG\tMajorLevel\tMajorSNPs\tMajorHGvariants\tVerifyScore\tmeanCovVar\tHGDistance");
+			fw.write("SampleID\tContamination\tMinorHG\tMinorLevel\tMinorSNPs\tMinorHGvariants\tMajorHG\tMajorLevel\tMajorSNPs\tMajorHGvariants\tVerifyScore\tmeanCovVar\tHG_Distance");
 			fw.write(System.lineSeparator());
 		
 			try {
@@ -285,10 +285,10 @@ public class ContaminatonChecker  extends Tool {
 				System.out.println("Samples: " + countEntries);
 				}
 			System.out.println("Mean Variant Coverage:  " + 0);//getMean(vecov));
-			System.out.println("Possibly contaminated: " + countPossibleContaminated + " of " + countEntries  );
-			System.out.println("High indication: " +countContaminated );
+			System.out.println("High indication: " +countContaminated  + " of " + countEntries);
 			System.out.println("Coverage <200x : " + countCovLow  );
-				
+			System.out.println("Possibly contaminated: " + countPossibleContaminated  );
+					
 			fw.close();
 		
 
