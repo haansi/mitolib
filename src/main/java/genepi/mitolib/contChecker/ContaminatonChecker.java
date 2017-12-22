@@ -220,7 +220,7 @@ public class ContaminatonChecker  extends Tool {
 						//check if one of the haplogroups is defined by at least 2 heteroplasmic variants and haplogroup with different snps found (distance -1 not related HGs)
 						if (((majMutfound - countHomoplMajor[0]) > 2 ||  (minMutfound - countHomoplMinor[0]) >2 ) && (countHomoplMajor[1]== countHomoplMinor[1]) && (distanceHG > 1 || distanceHG == -1 )){
 							countContaminated++;
-							fw.write(centry.getSampleId() + "\tCont.High\t" + centry.getMajorId() + "\t"
+							fw.write(centry.getSampleId() + "\tHG_conflict\t" + centry.getMajorId() + "\t"
 									+ formatter.format(meanMajor) + "\t" + homoplMajor + "\t"
 									+ (majMutfound - countHomoplMajor[0]) + "\t" + centry.getMinorId() + "\t"
 									+ formatter.format(meanMinor) + "\t" + homoplMinor + "\t"
@@ -230,14 +230,16 @@ public class ContaminatonChecker  extends Tool {
 																				// notfound.replaceAll("
 																				// ",
 																				// "").length()>1){
-							fw.write(centry.getSampleId() + "\tCont.Unlikely\t" + centry.getMajorId() + "\t"	
+							countPossibleContaminated++;
+							fw.write(centry.getSampleId() + "\tHG_conflict_low\t" + centry.getMajorId() + "\t"	
+									
 									+ formatter.format(meanMajor) + "\t" + homoplMajor + "\t"
 									+ (majMutfound - countHomoplMajor[0]) + "\t" + centry.getMinorId() + "\t"
 									+ formatter.format(meanMinor) + "\t" + homoplMinor + "\t"
 									+ (minMutfound - countHomoplMinor[0]) +"\t"+verifyScore + "\t"+meanCov+ "\t"+ distanceHG+"\n");
 						} else if (distanceHG > 1){
 							countPossibleContaminated++;
-							fw.write(centry.getSampleId() + "\tCont.Poss\t" + centry.getMajorId() + "\t"
+							fw.write(centry.getSampleId() + "\tHG_conflict_low\t" + centry.getMajorId() + "\t"
 									+ formatter.format(meanMajor) + "\t" + homoplMajor + "\t"
 									+ (majMutfound - countHomoplMajor[0]) + "\t" + centry.getMinorId() + "\t"
 									+ formatter.format(meanMinor) + "\t" + homoplMinor + "\t"
@@ -254,7 +256,7 @@ public class ContaminatonChecker  extends Tool {
 
 					else if (meanCov<200){
 						countTooCovLow++;
-						fw.write(centry.getSampleId() + "\tCov2Low\t" + centry.getMajorId() + "\t"
+						fw.write(centry.getSampleId() + "\tLow_Coverage\t" + centry.getMajorId() + "\t"
 								+ formatter.format(meanMajor) + "\t" + homoplMajor + "\t"
 								+ (majMutfound - countHomoplMajor[0]) + "\t" + centry.getMinorId() + "\t"
 								+ formatter.format(meanMinor) + "\t" + homoplMinor + "\t"
@@ -280,15 +282,15 @@ public class ContaminatonChecker  extends Tool {
 			if (countEntries==1)
 				{
 				System.out.println("Sample: " + ID);
+				System.out.println("Mean Variant Coverage:   " + getMean(vecov));
 				}
 			else{
 				System.out.println("Samples: " + countEntries);
 				}
-			System.out.println("Mean Variant Coverage:  " + 0);//getMean(vecov));
-			System.out.println("High indication: " +countContaminated  + " of " + countEntries);
-			System.out.println("Coverage <200x : " + countCovLow  );
-			System.out.println("Possibly contaminated: " + countPossibleContaminated  );
-					
+			System.out.println("Haplogroup based conflicts: " + countContaminated  + " of " + countEntries);
+			System.out.println("Minor haplogroup conflicts: " + countPossibleContaminated  );
+			System.out.println("Coverage     low  (<200x) : " + countCovLow  );
+				
 			fw.close();
 		
 
