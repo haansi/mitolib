@@ -47,7 +47,7 @@ public class HaploChecker3  extends Tool {
 	@Override
 	public void createParameters() {
 		addParameter("in", 	"input txt file");
-		addParameter("vaf", "variant allele frequence");
+		addParameter("vaf", "variant allele frequence", DOUBLE);
 		addParameter("out", "output folder");
 	}
 

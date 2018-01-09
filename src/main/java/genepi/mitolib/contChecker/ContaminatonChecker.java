@@ -373,7 +373,11 @@ public class ContaminatonChecker  extends Tool {
 		long start=System.currentTimeMillis();
 		 result[0]= common; //Maps.difference(hmap, helpMap).entriesInCommon().size();
 		// System.out.println(System.currentTimeMillis()-start);
+
+		 if(hmapSize.containsKey(sampleId))
 		 result[1]=hmapSize.get(sampleId);
+		 else
+			 result[1]=0;
 		return result;
 	}
 	
