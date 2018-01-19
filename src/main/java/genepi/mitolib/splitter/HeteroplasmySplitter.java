@@ -42,7 +42,7 @@ public class HeteroplasmySplitter  extends Tool {
 	public void createParameters() {
 
 		addParameter("in", 	"input Variants+Heteroplasmy from mtDNA-Server");
-		addParameter("vaf", "variant allele frequence");
+		addParameter("vaf", "variant allele frequence", DOUBLE);
 		addParameter("out", "output file for HaploGrep 2");
 	}
 
@@ -98,6 +98,7 @@ public class HeteroplasmySplitter  extends Tool {
 							}
 							idReader.close();
 						} catch (Exception e) {
+							System.out.println("Column names correctly present? \nExpecting tab delimited columns: \n" + HeaderNames.SampleId.colname() +" " + HeaderNames.Position.colname() + " " + HeaderNames.Reference.colname() + " " + HeaderNames.VariantBase.colname() + " "+ HeaderNames.VariantLevel.colname() + " " + HeaderNames.Coverage.colname() );
 							e.printStackTrace();
 						}
 			int counter = CNVServer2Haplogrep.generateHSDfile(hm, outfile, vaf);	

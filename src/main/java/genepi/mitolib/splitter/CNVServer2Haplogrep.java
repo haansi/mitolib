@@ -157,6 +157,7 @@ public class CNVServer2Haplogrep  extends Tool {
 	
 	public static int generateHSDfile(HashMap<String, ArrayList<CheckEntry>> hm, String outfile, double vaf) throws Exception{
 		FileWriter fw, fwVariant;
+		System.out.println("outfile " + outfile);
 		fw = new FileWriter(outfile);
 		fwVariant = new FileWriter(outfile+".txt");
 		

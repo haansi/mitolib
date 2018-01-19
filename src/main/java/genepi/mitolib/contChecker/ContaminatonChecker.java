@@ -174,9 +174,9 @@ public class ContaminatonChecker  extends Tool {
 					String majorfound = readTableHaploGrep.getString("Found_Polys");
 					double meanMajor = getMeanScores(centry.getSampleId(), majorfound, heteroLevels);
 					int[] countHomoplMajor=countHomoplasmies(centry.getSampleId(), majorfound, homoplasmies, homoplasmiesMeta);
-					double meanCov = getMeaCoverage(id.split("_maj")[0], coverageMap);
+					double meanCov = getMeanCoverage(id.split("_maj")[0], coverageMap);
+				
 					//check second pair entry
-			
 					readTableHaploGrep.next();
 					centry.setMinorId(readTableHaploGrep.getString("Haplogroup"));	  //Minor
 					notfound = readTableHaploGrep.getString("Not_Found_Polys");
@@ -382,7 +382,7 @@ public class ContaminatonChecker  extends Tool {
 	}
 	
 	
-	private double getMeaCoverage(String sampleId, HashMap<String, ArrayList<Integer>> covMap) {
+	private double getMeanCoverage(String sampleId, HashMap<String, ArrayList<Integer>> covMap) {
 		ArrayList<Integer> entries = covMap.get(sampleId);
 		int sum=0;
 		

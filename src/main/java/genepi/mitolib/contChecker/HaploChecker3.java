@@ -83,10 +83,11 @@ public class HaploChecker3  extends Tool {
 			String infile = input;
 			String fileHSD =out+File.separator+filename+".hsd";
 			//String fileVariants =out+File.separator+filename+".txt";
+			System.out.println("HE$RE we are " + infile + " " +fileHSD + " " + vaf);
 			
 			String fileHaploGrep =out+File.separator+filename+".haplogrep.txt";
 			splitter.build(infile, fileHSD, vaf);
-			System.out.println(fileHSD);
+		
 			String[] testArgs ={"-format", "hsd", "-in", fileHSD,"-out",fileHaploGrep, "-phylotree","17"};
 			
 			HaploGrepCMD hg = new HaploGrepCMD(testArgs);
