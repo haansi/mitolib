@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.math3.stat.interval.AgrestiCoullInterval;
 import org.apache.commons.math3.stat.interval.ClopperPearsonInterval;
 import org.apache.commons.math3.stat.interval.ConfidenceInterval;
@@ -415,8 +416,8 @@ public class BAMReader extends Tool {
 			e.printStackTrace();
 		}
 
-		writePileup(outDirectory + File.separator + name + ".pileup", size, columns, result);
-		System.out.println(outDirectory + File.separator + name);
+		writePileup(outDirectory + File.separator + FilenameUtils.getBaseName(name) + ".pileup", size, columns, result);
+		System.out.println(outDirectory + File.separator + FilenameUtils.getBaseName(name));
 
 		System.out.println("All Reads " + total + "\nStrand\t A\tC\tG\tT\tN\tD\tInsA\tInsC\tInsG\tInsT\n" + 
 		"Forward\t" + countAf + "\t" + countCf + "\t" + countGf + "\t" + countTf + "\t" + countNf + "\t" + countDf + "\t" + countIAf + "\t" + countICf + "\t" + countIGf + "\t" + countITf+ "\n" + 
@@ -465,7 +466,7 @@ public class BAMReader extends Tool {
 			}
 		}
 
-		writeVariants(outDirectory + File.separator + name + ".txt", name, formatter, het, variants);
+		writeVariants(outDirectory + File.separator + FilenameUtils.getBaseName(name) + ".txt", name, formatter, het, variants);
 
 		System.out.println(prev + " - input BAM file: " + genome);
 		System.out.println(prev + " - reference size: " + reference.length());

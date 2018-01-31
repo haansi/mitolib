@@ -83,12 +83,11 @@ public class HeteroplasmySplitter  extends Tool {
 								CheckEntry entry = new CheckEntry();
 								String id =  idReader.getString(HeaderNames.SampleId.colname()); //SampleID
 								entry.setID(id);
-								
 								entry.setPOS(idReader.getInteger(HeaderNames.Position.colname()));  //Pos
 								entry.setREF(idReader.getString(HeaderNames.Reference.colname()));	//Ref
-								entry.setALT(idReader.getString(HeaderNames.VariantBase.colname())); //ALT
-								entry.setVAF(idReader.getDouble(HeaderNames.VariantLevel.colname())); //VAF
-								entry.setCOV(idReader.getInteger(HeaderNames.Coverage.colname())); //COVERAGE
+								entry.setALT(idReader.getString(HeaderNames.VariantBase.colname())); //Variant
+								entry.setVAF(idReader.getDouble(HeaderNames.VariantLevel.colname())); //Variant-Level
+								entry.setCOV(idReader.getInteger(HeaderNames.Coverage.colname())); //Coverage-Total
 								if (hm.containsKey(id)) {
 									hm.get(id).add(entry);
 								} else if (hm.get(id) == null) {
