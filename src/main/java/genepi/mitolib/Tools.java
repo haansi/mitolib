@@ -9,6 +9,7 @@ import genepi.mitolib.contChecker.HaploChecker;
 import genepi.mitolib.contChecker.HaploChecker2;
 import genepi.mitolib.contChecker.HaploChecker2Hsd;
 import genepi.mitolib.contChecker.HaploChecker3;
+import genepi.mitolib.haplogrep.VariantsToHsd;
 import genepi.mitolib.lofreq.LoFreqReader;
 import genepi.mitolib.splitter.HeteroplasmySplitter;
 import genepi.mitolib.splitter.HeteroplasmySplitterRaw;
@@ -38,6 +39,7 @@ public class Tools extends Toolbox {
 			tools.addTool("haplochecker2",HaploChecker2.class);
 			tools.addTool("haplochecker2hsd",HaploChecker2Hsd.class);
 			tools.addTool("haplochecker3",HaploChecker3.class);
+			tools.addTool("variants2hsd",VariantsToHsd.class);
 			try {
 				tools.start();
 			} catch (InstantiationException e) {
