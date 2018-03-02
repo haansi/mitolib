@@ -163,11 +163,14 @@ public class ContaminatonChecker  extends Tool {
 					} catch (Exception e) {
 						// TODO: handle exception
 					}
-						
+					
+					
 					double weight =  readTableHaploGrep.getDouble("Overall_Rank"); //Rank
+					System.out.println("weight " + weight);
+					//centry.setMajorId(readTableHaploGrep.getString("weight"));    //Major
+					
 					centry.setSampleId(id.split("_maj")[0]);
 					centry.setMajorId(readTableHaploGrep.getString("Haplogroup"));    //Major
-			
 					
 					String notfound = readTableHaploGrep.getString("Not_Found_Polys");
 					centry.setMajorRemaining(notfound.length() - notfound.replaceAll(" ", "").length());

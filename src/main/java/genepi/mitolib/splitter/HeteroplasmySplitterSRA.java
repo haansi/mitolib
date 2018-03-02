@@ -10,8 +10,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.swing.plaf.synth.SynthSplitPaneUI;
-
 import genepi.base.Tool;
 import genepi.io.table.TableReaderFactory;
 import genepi.io.table.reader.ITableReader;
@@ -20,25 +18,24 @@ import genepi.mitolib.objects.HSDEntry;
 import genepi.mitolib.objects.HeaderNames;
 
 
-public class CNVServer2Haplogrep  extends Tool {
+public class HeteroplasmySplitterSRA  extends Tool {
 
-	public CNVServer2Haplogrep(String[] args) {
+	public HeteroplasmySplitterSRA(String[] args) {
 		super(args);
 	}
 	@Override
 	public void init() {
 
 		System.out
-				.println("Split mitochondrial raw file from CNVServer into profiles for HaploGrep 2 for contamination check\n\n");
+				.println("Split mitochondrial pileup file from Peter SRA - in profiles for HaploGrep 2\n\n");
 
 	}
 
 	@Override
 	public void createParameters() {
 
-		addParameter("in", 	"input raw file (pileup) from CNVServer");
-		addParameter("vaf", "variant allele frequence ");
-		addParameter("out", "output file for HaploGrep 2");
+		addParameter("in", 	"input raw file (pileup) from Peter");
+		addParameter("vaf", "variant allele frequence ", DOUBLE);
 	}
 	
 	
@@ -46,11 +43,10 @@ public class CNVServer2Haplogrep  extends Tool {
 	public int run() {
 
 		String in = (String) getValue("in");
-		String out = (String) getValue("out");
-		double vaf = 0.01;
+		double vaf = (double) getValue("vaf");
 
 		try {
-			return build(in, out, vaf);
+			return build(in, vaf);
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -62,37 +58,50 @@ public class CNVServer2Haplogrep  extends Tool {
 		}
 	}
 	
-	public int build(String variantfile, String outfile, double vaf) throws MalformedURLException, IOException {
+	public int build(String variantfile, double vaf) throws MalformedURLException, IOException {
 		try {
 			
 			//	input = directoryListing[0].getAbsolutePath();
 				
 				ITableReader idReader = TableReaderFactory.getReader(variantfile);
+
+
 				HashMap<String, ArrayList<CheckEntry>> hm = new HashMap<String, ArrayList<CheckEntry>>();
-	
+				ArrayList<String> missingList = new ArrayList<>();
+				int missings=0;
+				int covAll=0;
+				int linecount=0;
+				String id =  variantfile; //SampleID
+				
+				
 		try {
 			while (idReader.next()) {
 				CheckEntry entry = new CheckEntry();
-				String id =  idReader.getString("SAMPLE"); //SampleID
+				linecount++;
+				
 				entry.setID(id);
 				
-				entry.setPOS(idReader.getInteger("POS"));  //Pos
-				entry.setREF(idReader.getString("REF"));	//Ref
+				entry.setPOS(idReader.getInteger("Position"));  //Pos
+				String Ref = idReader.getString("Ref");
+				entry.setREF(Ref);	//Ref
 				
-				int covFWD= idReader.getInteger("COV-FWD");
-				int covREV= idReader.getInteger("COV-REV");
-				entry.setCOV(covREV+covFWD);
+				int coverageUnfiltered= idReader.getInteger("Coverage");
 				
-				String topFwd=idReader.getString("TOP-FWD");
-				String topRev=idReader.getString("TOP-REV");
+				int RefCount= (int) (idReader.getInteger("RefCount"));
 				
-				String minFwd=idReader.getString("MINOR-FWD");
-				String minRev=idReader.getString("MINOR-REV");
+				int A= (int) (idReader.getInteger("A"));
+				int C= (int) (idReader.getInteger("C"));
+				int G= (int) (idReader.getInteger("G"));
+				int T= (int) (idReader.getInteger("T"));
 				
-				int A= (int) (idReader.getDouble("%A")*covFWD) +  (int)(idReader.getDouble("%a")*covREV);
-				int C= (int) (idReader.getDouble("%C")*covFWD) +  (int)(idReader.getDouble("%c")*covREV);
-				int G= (int) (idReader.getDouble("%G")*covFWD) +  (int)(idReader.getDouble("%g")*covREV);
-				int T= (int) (idReader.getDouble("%T")*covFWD) +  (int)(idReader.getDouble("%t")*covREV);
+				int covTotal = A + C + G + T + RefCount;
+				
+				switch(Ref){
+				case "A": A+=RefCount; break;
+				case "C": C+=RefCount; break;
+				case "G": G+=RefCount; break;
+				case "T": T+=RefCount; break;
+				}
 				
 				TreeMap<Integer, String> map = new TreeMap<Integer, String>(Collections.reverseOrder());
 				
@@ -100,30 +109,34 @@ public class CNVServer2Haplogrep  extends Tool {
 				map.put(C, "C");
 				map.put(G, "G");
 				map.put(T, "T");
-		 
+
+				if(covTotal>0){
+
+			 covAll+=covTotal;
+			 entry.setCOV(covTotal);
 				String firstBase = (String) map.values().toArray()[0]; 
-				double firstBasePerc=  Double.valueOf((map.keySet().toArray()[0])+"") / (covFWD+covREV); 
+				double firstBasePerc=  Double.valueOf((map.keySet().toArray()[0])+"") / (covTotal); 
 				
 				String secondBase = (String) map.values().toArray()[1]; 
-				int secondBaseCount= Integer.valueOf(map.keySet().toArray()[1]+"");
-				double secondBasePerc= Double.valueOf( map.keySet().toArray()[1] +"") / (covFWD+covREV); 
-				
-					boolean isVariant = false;
-					if (topFwd.equals(entry.getREF())) 
-					{
-						if (/*(minFwd.equals(minRev) && !(minRev.equals("-"))) &&*/ (secondBasePerc >= vaf) && secondBaseCount>1) {
-							entry.setALT(secondBase);
-							entry.setVAF(secondBasePerc);
-							isVariant = true;
-						}
-
-					} else if (topFwd.equals(topRev)) {
-						entry.setALT(firstBase);
-						entry.setVAF(firstBasePerc);
-						isVariant = true;
-					}
-
-			if (isVariant){
+				double secondBasePerc= Double.valueOf( map.keySet().toArray()[1] +"") / (covTotal); 
+		 
+				boolean isVariant=false;
+				if (firstBase.equals(entry.getREF()))
+			    {
+			    	entry.setALT(secondBase);
+			    	entry.setVAF(secondBasePerc);
+			    	if (secondBasePerc >= vaf){
+			    		isVariant=true;
+			    	}
+			    		
+			    }
+			    else{
+			    	entry.setALT(firstBase);
+			    	entry.setVAF(firstBasePerc);
+			    	isVariant=true;
+			    }
+		
+				if (isVariant){
 				if (hm.containsKey(id)) {
 					hm.get(id).add(entry);
 				} else if (hm.get(id) == null) {
@@ -132,17 +145,27 @@ public class CNVServer2Haplogrep  extends Tool {
 				}
 			}
 			}
+		 else{
+			 missingList.add(entry.getPOS()+"");
+			 missings++;
+		 }
+			}
 			idReader.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}	
-
-	
-			int counter = generateHSDfile(hm, outfile, vaf);	
+		
+		FileWriter fw;
+		fw = new FileWriter(variantfile+".stats.txt");
+	//	fw.write("SampleID\tlines\tQ30_filtered\tmeanCov_Q30\tsitesNotcovered");
+		fw.write(System.lineSeparator());
+		fw.write(id+ "\t"+linecount +"\t"+ missings  +"\t"+((covAll>0) ? (covAll/(linecount-missings)): 0)+"\t"+missingList.toString());
+		fw.close();
+		
+		int counter = generateHSDfile(hm, variantfile, vaf);	
 			
 			System.out.println(counter +" samples processed\n" +counter*2 +" profiles written");
-	
-			
+
 			} catch (Exception e) {
 				System.out.println("ERROR");
 				e.printStackTrace();
@@ -151,17 +174,13 @@ public class CNVServer2Haplogrep  extends Tool {
 			return 0;
 		}
 
-
-	
-	
-	
 	public static int generateHSDfile(HashMap<String, ArrayList<CheckEntry>> hm, String outfile, double vaf) throws Exception{
 		FileWriter fw, fwVariant;
 		System.out.println("outfile " + outfile);
-		fw = new FileWriter(outfile);
+		fw = new FileWriter(outfile+".hsd");
 		fwVariant = new FileWriter(outfile+".txt");
 		
-		fw.write("SampleID\tRange\tHaplogroup\tPolymorphisms");
+	//	fw.write("SampleID\tRange\tHaplogroup\tPolymorphisms");
 		fw.write(System.lineSeparator());
 		
 		fwVariant.write("SampleID\tPos\tRef\tVariant\tVariant-Level\tCoverage-Total");
@@ -186,7 +205,7 @@ public class CNVServer2Haplogrep  extends Tool {
 						|| helpArray.get(i).getREF().length() > 1) {
 					// skip indel, and 3107 on rCRS;
 				} else {
-					if (helpArray.get(i).getVAF() < 0.5) {
+					if (helpArray.get(i).getVAF() < 0.5 ) {
 						fwVariant.write(pair.getKey() + "\t" + helpArray.get(i).getPOS() + "\t" + helpArray.get(i).getREF() +  "\t" + helpArray.get(i).getALT() +  "\t" + helpArray.get(i).getVAF() +  "\t" + helpArray.get(i).getCOV() );
 						fwVariant.write(System.lineSeparator());
 						
@@ -223,4 +242,29 @@ public class CNVServer2Haplogrep  extends Tool {
 	return counter;
 	}
 	
+	public static void main(String[] args){
+		String in = "data/peter/test.mito";
+		double vaf=0.01;
+		
+		HeteroplasmySplitterSRA hsra = new HeteroplasmySplitterSRA(args);
+		try {
+			hsra.build(in, vaf);
+			in = "data/peter/ERR436061.mito";
+			hsra.build(in, vaf);
+			in = "data/peter/SRR1286931.mito";
+			hsra.build(in, vaf);
+			in = "data/peter/SRR1695629.mito";
+			hsra.build(in, vaf);
+			in = "data/peter/SRR924015.mito";
+			hsra.build(in, vaf);
+			in = "data/peter/SRR099317.mito";
+			hsra.build(in, vaf);
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }

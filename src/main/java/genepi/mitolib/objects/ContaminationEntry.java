@@ -12,6 +12,9 @@ public int majorRemaining;
 public int minorRemaining;
 double majorFoundMean;
 double minorFoundMean;
+double majorHGscore;
+
+double minorHGscore;
 double contScore;
 int contType;
 
@@ -94,5 +97,29 @@ public void setContType(int contType) {
 	this.contType = contType;
 }
 
+public String getMajorHG() {
+	return majorHG;
+}
+public void setMajorHG(String majorHG) {
+	this.majorHG = majorHG;
+}
+public String getMinorHG() {
+	return minorHG;
+}
+public void setMinorHG(String minorHG) {
+	this.minorHG = minorHG;
+}
+public double getMajorHGscore() {
+	return majorHGscore;
+}
+public void setMajorHGscore(double majorHGscore) {
+	this.majorHGscore = majorHGscore;
+}
+public double getMinorHGscore() {
+	return minorHGscore;
+}
+public void setMinorHGscore(double minorHGscore) {
+	this.minorHGscore = minorHGscore;
+}
 	
 }

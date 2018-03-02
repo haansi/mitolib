@@ -322,7 +322,7 @@ public class BAMReader extends Tool {
 										Integer cigarElementEnd = currentReferencePos + cigarElementLength;
 
 										while (cigarElementStart < cigarElementEnd) {
-
+											try{
 											if ((samRecord.getFlags() & 0x10) == 0x10) {
 												countDf++;
 												result[(cigarElementEnd - cigarElementLength) % (size - 1)][11]++;
@@ -332,6 +332,11 @@ public class BAMReader extends Tool {
 											}
 
 											cigarElementStart += cigarElementLength;
+				
+											} catch (Exception e) {
+												System.out.println("issue with deletion");
+												break;
+											}
 										}
 
 									} else

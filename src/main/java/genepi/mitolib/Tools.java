@@ -12,6 +12,7 @@ import genepi.mitolib.contChecker.HaploChecker3;
 import genepi.mitolib.lofreq.LoFreqReader;
 import genepi.mitolib.splitter.HeteroplasmySplitter;
 import genepi.mitolib.splitter.HeteroplasmySplitterRaw;
+import genepi.mitolib.splitter.HeteroplasmySplitterSRA;
 
 
 public class Tools extends Toolbox {
@@ -31,6 +32,7 @@ public class Tools extends Toolbox {
 			
 			tools.addTool("splitter", HeteroplasmySplitter.class);
 			tools.addTool("splitterRaw", HeteroplasmySplitterRaw.class);
+			tools.addTool("splitterSRA", HeteroplasmySplitterSRA.class);
 			tools.addTool("contChecker", ContaminatonChecker.class);
 			tools.addTool("lofreq", LoFreqReader.class);
 			tools.addTool("bam2var",BAMReader.class);
