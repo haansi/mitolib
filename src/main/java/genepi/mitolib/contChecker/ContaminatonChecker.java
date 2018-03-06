@@ -147,7 +147,7 @@ public class ContaminatonChecker  extends Tool {
 
 			ArrayList<ContaminationEntry> contArray = new  ArrayList<ContaminationEntry>();
 			FileWriter fw = new FileWriter(new File(outfile));
-			fw.write("SampleID\tContamination\tMinorHG\tMinorLevel\tMinorSNPs\tMinorHGvariants\tMajorHG\tMajorLevel\tMajorSNPs\tMajorHGvariants\tVerifyScore\tmeanCovVar\tHG_Distance");
+			fw.write("SampleID\tContamination\tMajorHG\tMajorLevel\tMajorSNPs\tMajorHGvariants\tMinorHG\tMinorLevel\tMinorSNPs\tMinorHGvariants\tVerifyScore\tmeanCovVar\tHG_Distance");
 			fw.write(System.lineSeparator());
 		
 			try {
