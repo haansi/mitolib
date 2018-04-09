@@ -1,5 +1,6 @@
 package genepi.mitolib.splitter;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -68,7 +69,12 @@ public class HeteroplasmySplitter  extends Tool {
 	}
 	
 	public int build(String variantfile, String outfile, double vaf) throws MalformedURLException, IOException {
-		
+		//check if file is folder or single file - if folder - take first entry
+		File checkFile = new File(variantfile);
+		if(checkFile.isDirectory()) {
+			File[] files = checkFile.listFiles();
+			variantfile =files[0].getAbsoluteFile().toString();
+		}
 			try {
 				
 			//	input = directoryListing[0].getAbsolutePath();
@@ -99,6 +105,7 @@ public class HeteroplasmySplitter  extends Tool {
 						} catch (Exception e) {
 							System.out.println("Column names correctly present? \nExpecting tab delimited columns: \n" + HeaderNames.SampleId.colname() +" " + HeaderNames.Position.colname() + " " + HeaderNames.Reference.colname() + " " + HeaderNames.VariantBase.colname() + " "+ HeaderNames.VariantLevel.colname() + " " + HeaderNames.Coverage.colname() );
 							e.printStackTrace();
+							return -1;
 						}
 			int counter = CNVServer2Haplogrep.generateHSDfile(hm, outfile, vaf);	
 			

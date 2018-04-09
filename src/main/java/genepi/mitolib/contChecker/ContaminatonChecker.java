@@ -3,10 +3,12 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.text.DecimalFormat;
@@ -141,7 +143,8 @@ public class ContaminatonChecker  extends Tool {
 				e.printStackTrace();
 			}
 			
-
+			replaceSpecialCharacter(inHG2);
+			
 			CsvTableReader readTableHaploGrep = new CsvTableReader(inHG2, '\t', true);
 			NumberFormat formatter = new DecimalFormat("#0.000");  
 
@@ -396,7 +399,37 @@ public class ContaminatonChecker  extends Tool {
 		return sum/entries.size();
 	}
 	
-		
+/**
+ * From https://stackoverflow.com/questions/3940997/files-java-replacing-characters
+ * @param file
+ * @throws IOException
+ */
+	public void replaceSpecialCharacter(String file)  {
+
+	    File tempFile =new File(file);
+		try {
+			tempFile = File.createTempFile("buffer", ".tmp");
+	
+	    FileWriter fw = new FileWriter(tempFile);
+
+	    Reader fr = new FileReader(file);
+	    BufferedReader br = new BufferedReader(fr);
+
+	    while(br.ready()) {
+	        fw.write(br.readLine().replaceAll("\"", "''") + "\n");
+	    }
+
+	    fw.close();
+	    br.close();
+	    fr.close();
+
+	    tempFile.renameTo(new File(file));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	
 	public static void main(String[] args) {
 		ContaminatonChecker cc =new ContaminatonChecker(args);
