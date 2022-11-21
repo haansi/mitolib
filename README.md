@@ -2,8 +2,13 @@
 
 <a href="https://www.java.com/"><img src="http://img.shields.io/badge/language-java-brightgreen.svg" alt="Language" data-canonical-src="http://img.shields.io/badge/language-java-brightgreen.svg" style="max-width:100%;"></a></p>
 
+⛔️ DEPRECATED!!!
 
-Current Tools:
+- Please use <b>Mutserve</b> for variant calling https://github.com/seppinho/mutserve 
+- or <b>HaploCheck</b> for contamination detection https://github.com/genepi/haplocheck
+
+Be aware of the limitations when using the outdated Tools:
+
 - splitter - Split mitochondrial variants and heteroplasmies from <a href="https://mtdna-server.uibk.ac.at/index.html">mtDNA-Server</a>
 - contChecker - Compare mitochondrial profiles from extended report in <a href="http://haplogrep.uibk.ac.at/">HaploGrep 2</a>
 - lofreq - Split mitochondrial variants according the VCF file generated with <a href="http://csb5.github.io/lofreq/">LoFreq</a> as Variant file (txt)
